@@ -1,0 +1,132 @@
+.container {
+  min-height: 100vh;
+  padding: 24px;
+  background: #f4f4f2;
+}
+
+.form {
+  width: 100%;
+  max-width: 420px;
+  margin: 60px auto 0;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+}
+
+.heading {
+  margin: 0 0 24px;
+  color: #1f2937;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.fieldGroup {
+  margin-bottom: 18px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #bfc5cc;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 16px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #8c6b24;
+  box-shadow: 0 0 0 2px rgba(140, 107, 36, 0.15);
+}
+
+.info {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 10px;
+    border: none;
+    background: none;
+    color: #bfc5cc;
+    font-size: 0.75rem;
+}
+
+.link {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 6px 10px;
+    border: none;
+    background: none;
+    color: var(--navy);
+    text-decoration: none;
+    cursor: pointer;
+    font-size: smaller;
+}
+
+.link:hover {
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--orange);
+}
+
+.linkGroup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 14px;
+}
+
+.linkGroup .link {
+    margin: 0;
+    padding: 6px 12px;
+}
+
+.linkGroup .link + .link {
+    border-left: 1px solid #b8b8b8;
+
+}
+
+.button {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  background: var(--navy);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--orange);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 16px;
+  }
+
+  .form {
+    margin-top: 32px;
+    padding: 22px;
+  }
+}
