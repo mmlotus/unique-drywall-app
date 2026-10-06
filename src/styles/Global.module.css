@@ -52,55 +52,56 @@
 }
 
 .info {
-    display: block;
-    width: fit-content;
-    margin: 0 auto;
-    padding: 10px;
-    border: none;
-    background: none;
-    color: #bfc5cc;
-    font-size: 0.75rem;
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 10px;
+  border: none;
+  background: none;
+  color: #bfc5cc;
+  font-size: 0.75rem;
 }
 
 .link {
-    display: block;
-    width: fit-content;
-    margin: 0 auto;
-    padding: 6px 10px;
-    border: none;
-    background: none;
-    color: var(--navy);
-    text-decoration: none;
-    cursor: pointer;
-    font-size: smaller;
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 6px 10px;
+  border: none;
+  background: none;
+  color: var(--navy);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: smaller;
 }
 
 .link:hover {
-    text-decoration: underline;
-    cursor: pointer;
-    color: var(--orange);
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--orange);
 }
 
 .linkGroup {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 14px;
 }
 
 .linkGroup .link {
-    margin: 0;
-    padding: 6px 12px;
+  margin: 0;
+  padding: 6px 12px;
 }
 
-.linkGroup .link + .link {
-    border-left: 1px solid #b8b8b8;
+.linkGroup .link+.link {
+  border-left: 1px solid #b8b8b8;
 
 }
 
 .button {
   width: 100%;
   min-height: 44px;
+  margin: 10px 10px;
   padding: 10px 16px;
   border: none;
   border-radius: 6px;
@@ -118,6 +119,106 @@
 .button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--navy);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.iconButton svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.actionButton {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--navy);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+.iconButton:hover,
+.actionButton:hover {
+  background: var(--navy);
+  color: white;
+}
+
+.iconButton:disabled,
+.actionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.iconActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.toggleButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 2rem;
+  padding: 0.35rem 0.7rem;
+
+  border: 1px solid var(--navy);
+  border-radius: 999px;
+
+  background: transparent;
+  color: var(--navy);
+
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.toggleButton:hover {
+  background: rgba(22, 35, 58, 0.08);
+}
+
+.toggleButtonActive {
+  background: var(--navy);
+  color: white;
+}
+
+.toggleButtonActive:hover {
+  background: var(--navy);
+}
+
+.toggleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (min-width: 800px) {
+  .iconActions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    margin-top: 0;
+  }
 }
 
 @media (max-width: 600px) {
