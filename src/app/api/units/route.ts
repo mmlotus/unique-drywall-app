@@ -1,62 +1,63 @@
 import { cleanString, jsonError, jsonOk, serverError } from "@/lib/api/apiUtils";
 import { sql } from "@/lib/db";
-import { CategoryFormData } from "@/types/categories";
+import { UnitFormData } from "@/types";
 
 export async function GET() {
     try {
-        const categories = await sql`
+        const units = await sql`
             SELECT
                 id,
                 name,
-                notes,
+                abbreviation,
                 display_order,
                 is_archived,
                 created_at,
                 updated_at
-            FROM categories
+            FROM units
             ORDER BY LOWER(name), display_order, created_at
         `;
 
-        return jsonOk(categories);
+        return jsonOk(units);
     } catch (err) {
-        return serverError("GET /api/categories", err);
+        return serverError("GET /api/units", err);
     }
 }
 
 export async function POST(request: Request) {
     try {
-        const body = (await request.json()) as CategoryFormData;
+        const body = (await request.json()) as UnitFormData;
 
         const name = cleanString(body.name);
+        const abbreviation = cleanString(body.abbreviation);
 
-        if (!name) return jsonError("Category Name is required.", 400);
+        if (!name) return jsonError("Unit Name is required.");
 
-        const [category] = await sql`
-            INSERT INTO categories (
+        const [unit] = await sql`
+            INSERT INTO units (
                 name,
-                notes,
+                abbreviation,
                 display_order
             )
             VALUES (
                 ${name},
-                ${cleanString(body.notes)},
+                ${abbreviation},
                 (
                     SELECT COALESCE(MAX(display_order), 0) + 1
-                    FROM categories
+                    FROM units
                 )
             )
             RETURNING
                 id,
                 name,
-                notes,
+                abbreviation,
                 display_order,
                 is_archived,
                 created_at,
                 updated_at
         `;
 
-        return jsonOk(category, 201);
+        return jsonOk(unit, 201);
     } catch (err) {
-        return serverError("POST /api/categories", err);
+        return serverError("POST /api/units", err);
     }
 }
