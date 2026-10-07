@@ -14,6 +14,9 @@ import { ArchiveRestore, ArchiveX, Loader, Pencil } from "lucide-react";
 import ToggleButton from "@/components/ToggleButton";
 import LibrarySection from "@/components/Libraries/LibrarySection";
 import LibraryPageLayout from "@/components/Libraries/LibraryPageLayout";
+import { useLibraryData } from "@/hooks/useLibraryData";
+import LibrarySearch from "@/components/Libraries/LibrarySearch";
+import LibraryPagination from "@/components/Libraries/LibraryPagination";
 
 const emptyform: CustomerFormData = {
     name: "",
@@ -35,6 +38,31 @@ const emptyform: CustomerFormData = {
     notes: "",
 };
 
+function getCustomerSearchText(customer: Customer): string {
+    return [
+        customer.name,
+        customer.phone,
+        formatPhone(customer.phone),
+        customer.email,
+
+        customer.billing_address_line1,
+        customer.billing_address_line2,
+        customer.billing_city,
+        customer.billing_state,
+        customer.billing_zip,
+
+        customer.job_address_line1,
+        customer.job_address_line2,
+        customer.job_city,
+        customer.job_state,
+        customer.job_zip,
+
+        customer.notes,
+    ]
+        .filter(Boolean)
+        .join(" ");
+}
+
 export default function CustomersPage() {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [form, setForm] = useState(emptyform);
@@ -46,9 +74,26 @@ export default function CustomersPage() {
     const [updatingCustomerId, setUpdatingCustomerId] = useState<string | null>(null);
     const [showAllCustomers, setShowAllCustomers] = useState(false);
 
-    const visibleCustomers = showAllCustomers
-        ? customers
-        : customers.filter((customer) => !customer.is_archived);
+    const {
+        searchQuery,
+        setSearchQuery,
+        currentPage,
+        setCurrentPage,
+        pageSize,
+        setPageSize,
+        paginatedRecords,
+        totalPages,
+        totalRecords,
+    } = useLibraryData({
+        records: customers,
+        searchText: getCustomerSearchText,
+        filterRecord: (customer, query) => {
+            if (query) return true;
+
+            return (showAllCustomers || !customer.is_archived);
+        },
+        initialPageSize: 10,
+    });
 
     async function fetchCustomers(): Promise<Customer[]> {
         const res = await fetch("/api/customers");
@@ -423,97 +468,129 @@ export default function CustomersPage() {
 
                 library={
                     <LibrarySection
-                        title="Customers"
+                        title={`Customers (${totalRecords})`}
                         actions={
                             <ToggleButton
                                 active={showAllCustomers}
-                                onClick={() => setShowAllCustomers((current) => !current)}
+                                onClick={() => {
+                                    setShowAllCustomers((current) => !current);
+                                    setCurrentPage(1);
+                                }}
                                 activeLabel="View Active Only"
                                 inactiveLabel="View All Customers"
                             />
                         }
                     >
+                        <LibrarySearch
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                            placeholder="Search customers..."
+                        />
+
+                        <LibraryPagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalRecords={totalRecords}
+                            pageSize={pageSize}
+                            onPageChange={setCurrentPage}
+                            onPageSizeChange={setPageSize}
+                        />
+
                         {loading ? (
                             <p>Loading customers...</p>
-                        ) : visibleCustomers.length === 0 ? (
+                        ) : totalRecords === 0 ? (
                             <p className={libs.emptyState}>
-                                No customers yet.
+                                {searchQuery
+                                    ? "No customers match your search."
+                                    : "No customers yet."
+                                }
                             </p>
                         ) : (
-                            <div className={libs.recordList}>
-                                {visibleCustomers.map((customer) => (
-                                    <article
-                                        key={customer.id}
-                                        className={`${libs.recordCard} ${customer.is_archived ? libs.archivedRecord : ""}`}
-                                    >
-                                        <div className={libs.recordTitleRow}>
-                                            <h3 className={libs.recordTitle}>{customer.name}</h3>
+                            <>
+                                <div className={libs.recordList}>
+                                    {paginatedRecords.map((customer) => (
+                                        <article
+                                            key={customer.id}
+                                            className={`${libs.recordCard} ${customer.is_archived ? libs.archivedRecord : ""}`}
+                                        >
+                                            <div className={libs.recordTitleRow}>
+                                                <h3 className={libs.recordTitle}>{customer.name}</h3>
 
-                                            {customer.is_archived && (
-                                                <span className={libs.archivedBadge}>
-                                                    Archived
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        <div className={libs.recordDetails}>
-                                            {customer.phone && (
-                                                <span>{formatPhone(customer.phone)}</span>
-                                            )}
-
-                                            {customer.email && (
-                                                <span>{customer.email}</span>
-                                            )}
-
-                                            <div className={libs.recordAddress}>
-                                                <div>
-                                                    {customer.job_address_line1}
-                                                </div>
-
-                                                {customer.job_address_line2 && (
-                                                    <div>
-                                                        {customer.job_address_line2}
-                                                    </div>
+                                                {customer.is_archived && (
+                                                    <span className={libs.archivedBadge}>
+                                                        Archived
+                                                    </span>
                                                 )}
-
-                                                <div>
-                                                    {customer.job_city},{" "}
-                                                    {customer.job_state},{" "}
-                                                    {customer.job_zip}
-                                                </div>
                                             </div>
 
-                                            <div className={glob.iconActions}>
-                                                {!customer.is_archived && (
+                                            <div className={libs.recordDetails}>
+                                                {customer.phone && (
+                                                    <span>{formatPhone(customer.phone)}</span>
+                                                )}
+
+                                                {customer.email && (
+                                                    <span>{customer.email}</span>
+                                                )}
+
+                                                <div className={libs.recordAddress}>
+                                                    <div>
+                                                        {customer.job_address_line1}
+                                                    </div>
+
+                                                    {customer.job_address_line2 && (
+                                                        <div>
+                                                            {customer.job_address_line2}
+                                                        </div>
+                                                    )}
+
+                                                    <div>
+                                                        {customer.job_city},{" "}
+                                                        {customer.job_state},{" "}
+                                                        {customer.job_zip}
+                                                    </div>
+                                                </div>
+
+                                                <div className={glob.iconActions}>
+                                                    {!customer.is_archived && (
+                                                        <button
+                                                            className={glob.iconButton}
+                                                            type="button"
+                                                            aria-label={`Edit ${customer.name}`}
+                                                            title="Edit Customer"
+                                                            onClick={() => startEditing(customer)}
+                                                        >
+                                                            <Pencil size={16} />
+                                                        </button>
+                                                    )}
+
                                                     <button
                                                         className={glob.iconButton}
                                                         type="button"
-                                                        aria-label={`Edit ${customer.name}`}
-                                                        title="Edit Customer"
-                                                        onClick={() => startEditing(customer)}
+                                                        title={customer.is_archived ? "Restore Customer" : "Archive Customer"}
+                                                        disabled={updatingCustomerId === customer.id}
+                                                        onClick={() => void toggleArchived(customer)}
                                                     >
-                                                        <Pencil size={16} />
+                                                        {updatingCustomerId === customer.id
+                                                            ? <Loader size={16} />
+                                                            : customer.is_archived
+                                                                ? <ArchiveRestore size={16} />
+                                                                : <ArchiveX size={16} />}
                                                     </button>
-                                                )}
-
-                                                <button
-                                                    className={glob.iconButton}
-                                                    type="button"
-                                                    title={customer.is_archived ? "Restore Customer" : "Archive Customer"}
-                                                    disabled={updatingCustomerId === customer.id}
-                                                    onClick={() => void toggleArchived(customer)}
-                                                >
-                                                    {updatingCustomerId === customer.id
-                                                        ? <Loader size={16} />
-                                                        : customer.is_archived
-                                                            ? <ArchiveRestore size={16} />
-                                                            : <ArchiveX size={16} />}
-                                                </button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </article>
-                                ))}
-                            </div>
+                                        </article>
+                                    ))}
+                                </div>
+
+                                <LibraryPagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    totalRecords={totalRecords}
+                                    pageSize={pageSize}
+                                    onPageChange={setCurrentPage}
+                                    onPageSizeChange={setPageSize}
+                                />
+                            </>
                         )}
                     </LibrarySection>
                 }

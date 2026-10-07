@@ -135,6 +135,134 @@
     margin-top: 0;
 }
 
+.librarySearch {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.librarySearchInput {
+    width: 100%;
+    min-height: 40px;
+    padding: 0.5rem 0.75rem;
+
+    border: 1px solid #bfc5cc;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #111827;
+
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.librarySearchInput:focus {
+    outline: none;
+    border-color: #8c6b24;
+    box-shadow: 0 0 0 2px rgba(140, 107, 36, 0.15);
+}
+
+/* Pagination */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+
+    width: 100%;
+    padding: 0.55rem 0;
+
+    border-bottom: 1px solid #d9d9d9;
+}
+
+.paginationInfo {
+    flex-shrink: 0;
+
+    color: #4b5563;
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
+
+.paginationControls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+
+    min-width: 0;
+}
+
+.paginationPageSize {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+
+    color: #4b5563;
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
+
+.pageSizeSelect {
+    width: 46px;
+    height: 28px;
+    padding: 0 0.2rem;
+
+    border: 1px solid #cbd0d6;
+    border-radius: 5px;
+
+    background: #ffffff;
+    color: #111827;
+
+    font: inherit;
+    font-size: 0.72rem;
+}
+
+.paginationButtons {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    flex-shrink: 0;
+}
+
+.paginationButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    border: 1px solid #cbd0d6;
+    border-radius: 5px;
+
+    background: #ffffff;
+    color: var(--navy);
+
+    cursor: pointer;
+}
+
+.paginationButton:hover:not(:disabled) {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: #ffffff;
+}
+
+.paginationButton:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.recordList + .pagination {
+    margin-top: 0.75rem;
+
+    border-top: 1px solid #d9d9d9;
+    border-bottom: none;
+}
+
+/* Responsive library records */
+
 @media (min-width: 800px) {
     .recordList {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -144,6 +272,8 @@
         padding-right: 4.5rem;
     }
 }
+
+/* Desktop library/editor split */
 
 @media (min-width: 1000px) {
     .libraryPageLayout {
@@ -176,6 +306,10 @@
 @media (min-width: 1200px) {
     .recordList {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .libraryPane .recordList {
+        grid-template-columns: 1fr;
     }
 }
 
