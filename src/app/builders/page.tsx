@@ -65,7 +65,7 @@ export default function BuilderFirmsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
-    const [editingBuilderId, setEditingBuidlerId] = useState<string | null>(null);
+    const [editingBuilderId, setEditingBuilderId] = useState<string | null>(null);
     const [updatingBuilderId, setUpdatingBuilderId] = useState<string | null>(null);
     const [showAllBuilders, setShowAllBuilders] = useState(false);
 
@@ -150,14 +150,14 @@ export default function BuilderFirmsPage() {
     }
 
     function startEditing(builder: BuilderFirm) {
-        setEditingBuidlerId(builder.id);
+        setEditingBuilderId(builder.id);
         setForm(builderFirmToFormData(builder));
 
         window.scrollTo({ top: 0, behavior: "smooth", });
     }
 
     function cancelEditing() {
-        setEditingBuidlerId(null);
+        setEditingBuilderId(null);
         setForm(emptyform);
     }
 
@@ -211,7 +211,7 @@ export default function BuilderFirmsPage() {
             );
 
             setForm(emptyform);
-            setEditingBuidlerId(null);
+            setEditingBuilderId(null);
 
             toast.success(editing ? "Builder updated!" : "Builder created!");
             await loadBuilders();
