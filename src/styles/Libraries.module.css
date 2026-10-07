@@ -46,13 +46,23 @@
 
 .recordTitleRow {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: 0.75rem;
 }
 
+.recordTitleGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
+}
+
 .recordTitle {
+    min-width: 0;
+    overflow-wrap: anywhere;
     margin: 0 0 0.5rem;
-    font-size: 1.1rem;
     font-weight: 600;
 }
 
@@ -131,7 +141,7 @@
     padding: 1rem;
 }
 
-.editorPane > form {
+.editorPane>form {
     margin-top: 0;
 }
 
@@ -254,7 +264,7 @@
     cursor: not-allowed;
 }
 
-.recordList + .pagination {
+.recordList+.pagination {
     margin-top: 0.75rem;
 
     border-top: 1px solid #d9d9d9;
