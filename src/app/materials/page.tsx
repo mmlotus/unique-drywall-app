@@ -667,7 +667,7 @@ export default function MaterialsPage() {
 
                         {editingMatId && (
                             <button
-                                className={glob.button}
+                                className={glob.buttonTwo}
                                 type="button"
                                 onClick={cancelEditing}
                                 disabled={saving}

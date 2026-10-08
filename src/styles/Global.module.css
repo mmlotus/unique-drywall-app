@@ -106,25 +106,39 @@
 
 }
 
-.button {
+.button,
+.buttonTwo {
   width: 100%;
   min-height: 44px;
   margin: 10px 10px;
   padding: 10px 16px;
   border: none;
   border-radius: 6px;
-  background: var(--navy);
-  color: #ffffff;
+  color: var(--background);
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.button {
+  background: var(--navy);
+}
+
+.buttonTwo {
+  background: var(--text-muted);
 }
 
 .button:hover {
   background: var(--orange);
 }
 
-.button:disabled {
+.buttonTwo:hover {
+  background: var(--input-disabled-bg);
+  color: var(--text);
+}
+
+.button:disabled,
+.buttonTwo:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

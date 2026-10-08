@@ -241,7 +241,7 @@ export default function UnitsPage() {
 
                         {editingUnitId && (
                             <button
-                                className={glob.button}
+                                className={glob.buttonTwo}
                                 type="button"
                                 onClick={cancelEditing}
                                 disabled={saving}

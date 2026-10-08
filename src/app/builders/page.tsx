@@ -395,7 +395,7 @@ export default function BuilderFirmsPage() {
 
                         {editingBuilderId && (
                             <button
-                                className={glob.button}
+                                className={glob.buttonTwo}
                                 type="button"
                                 onClick={cancelEditing}
                                 disabled={saving}
