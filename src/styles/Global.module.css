@@ -51,6 +51,14 @@
   box-shadow: 0 0 0 2px rgba(140, 107, 36, 0.15);
 }
 
+.input:disabled,
+.input[readonly] {
+  background-color: var(--input-disabled-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .info {
   display: block;
   width: fit-content;

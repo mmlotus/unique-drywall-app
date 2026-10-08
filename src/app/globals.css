@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --input-disabled-bg: #cccccc75;
+
+  --text: #111111;
+  --text-muted: #555;
 
   --navy: #16233a;
   --orange: #f2a23a;
@@ -20,6 +24,14 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --input-disabled-bg: #504f4f79;
+
+    --text: #f5f5f5;
+    --text-muted: #aaa;
+
+    --navy: #395e9e;
+    --orange: #f2a23a;
+    --yellow: #f5c542;
   }
 }
 

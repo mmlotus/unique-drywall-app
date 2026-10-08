@@ -2,6 +2,12 @@ export function cleanString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+export function cleanNullableString(value: unknown): string | null {
+  const cleaned = cleanString(value);
+
+  return cleaned || null;
+}
+
 export function cleanStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];
@@ -38,4 +44,26 @@ export function serverError(routeName: string, error: unknown) {
     { error: "Internal server error." },
     { status: 500 }
   );
+}
+
+export function cleanNumber(value: string): number | null {
+  const cleaned = value.trim();
+
+  if (!cleaned) return null;
+
+  const parsed = Number(cleaned);
+
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function cleanNullableNumber(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+
+  const cleaned = String(value).trim();
+
+  if (!cleaned) return null;
+
+  const parsed = Number(cleaned);
+
+  return Number.isFinite(parsed) ? parsed : null;
 }
