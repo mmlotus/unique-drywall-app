@@ -34,3 +34,45 @@ export function calculateCoverage(
 
     return "";
 }
+
+export type CustomFormulaBase =
+    | "measured_sqft"
+    | "linear_footage"
+    | "material_quantity";
+
+export type CustomFormulaOperation =
+    | "*"
+    | "+"
+    | "-";
+
+export function buildCustomFormula(
+    base: CustomFormulaBase,
+    operation: CustomFormulaOperation,
+    value: string
+): string {
+    if (!value.trim()) return "";
+
+    return `${base} ${operation} ${value.trim()}`;
+}
+
+export function parseCustomFormula(formula: string | null | undefined): {
+    base: CustomFormulaBase;
+    operation: CustomFormulaOperation;
+    value: string;
+} {
+    const match = formula?.match(
+        /^(measured_sqft|linear_footage|material_quantity)\s([*+-])\s(.+)$/
+    );
+
+    if (!match) return {
+        base: "measured_sqft",
+        operation: "*",
+        value: "",
+    };
+
+    return {
+        base: match[1] as CustomFormulaBase,
+        operation: match[2] as CustomFormulaOperation,
+        value: match[3],
+    };
+}

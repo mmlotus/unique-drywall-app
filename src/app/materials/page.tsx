@@ -13,7 +13,7 @@ import LibrarySearch from "@/components/Libraries/LibrarySearch";
 import LibraryPagination from "@/components/Libraries/LibraryPagination";
 import { Category, emptyMaterialFormData, Material, MaterialFormData, Unit } from "@/types";
 import { materialToFormData } from "@/lib/mappers/materials";
-import { calculateCoverage } from "@/lib/helpers/coverage";
+import { buildCustomFormula, calculateCoverage, CustomFormulaBase, CustomFormulaOperation, parseCustomFormula } from "@/lib/helpers/coverage";
 
 function getMaterialSearchText(m: Material): string {
     return [
@@ -39,6 +39,22 @@ export default function MaterialsPage() {
     const [editingMatId, setEditingMatId] = useState<string | null>(null);
     const [updatingMatId, setUpdatingMatId] = useState<string | null>(null);
     const [showAllMats, setShowAllMats] = useState(false);
+
+    const [customFormulaBase, setCustomFormulaBase] = useState<CustomFormulaBase>("measured_sqft");
+    const [customFormulaOperation, setCustomFormulaOperation] = useState<CustomFormulaOperation>("*");
+    const [customFormulaValue, setCustomFormulaValue] = useState("");
+
+    function updateCustomFormula(
+        base: CustomFormulaBase,
+        operation: CustomFormulaOperation,
+        value: string
+    ) {
+        setCustomFormulaBase(base);
+        setCustomFormulaOperation(operation);
+        setCustomFormulaValue(value);
+
+        updateField("customFormula", buildCustomFormula(base, operation, value));
+    }
 
     const {
         searchQuery,
@@ -189,6 +205,11 @@ export default function MaterialsPage() {
         setEditingMatId(m.id);
 
         const editForm = materialToFormData(m);
+        const parsedFormula = parseCustomFormula(editForm.customFormula);
+
+        setCustomFormulaBase(parsedFormula.base);
+        setCustomFormulaOperation(parsedFormula.operation);
+        setCustomFormulaValue(parsedFormula.value);
 
         if (
             editForm.calculationMethod === "measured_sqft" ||
@@ -209,6 +230,10 @@ export default function MaterialsPage() {
     function cancelEditing() {
         setEditingMatId(null);
         setForm(emptyMaterialFormData);
+
+        setCustomFormulaBase("measured_sqft");
+        setCustomFormulaOperation("*");
+        setCustomFormulaValue("");
     }
 
     async function toggleArchived(m: Material) {
@@ -262,6 +287,10 @@ export default function MaterialsPage() {
 
             setForm(emptyMaterialFormData);
             setEditingMatId(null);
+
+            setCustomFormulaBase("measured_sqft");
+            setCustomFormulaOperation("*");
+            setCustomFormulaValue("");
 
             toast.success(editing ? "Material updated!" : "Material created!");
             await loadMaterials();
@@ -420,17 +449,84 @@ export default function MaterialsPage() {
                             </div>
 
                             {form.calculationMethod === "custom_formula" && (
-                                <div className={glob.fieldGroup}>
-                                    <label className={glob.label}>Custom Formula</label>
+                                <>
+                                    <div className={glob.fieldGroup}>
+                                        <label className={glob.label}>Calculate From</label>
+                                        <select
+                                            className={glob.input}
+                                            value={customFormulaBase}
+                                            onChange={(e) =>
+                                                updateCustomFormula(
+                                                    e.target.value as CustomFormulaBase,
+                                                    customFormulaOperation,
+                                                    customFormulaValue
+                                                )}
+                                        >
+                                            <option value="measured_sqft">Measured Square Footage</option>
+                                            <option value="linear_footage">Linear Footage</option>
+                                            <option value="material_quantity">Material Quantity</option>
+                                        </select>
+                                    </div>
 
-                                    <textarea
-                                        id="mat-custom-formula"
-                                        className={glob.input}
-                                        value={form.customFormula}
-                                        onChange={(e) => updateField("customFormula", e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                    <div className={glob.fieldGroup}>
+                                        <label className={glob.label}>Operation</label>
+
+                                        <select
+                                            className={glob.input}
+                                            value={customFormulaOperation}
+                                            onChange={(e) =>
+                                                updateCustomFormula(
+                                                    customFormulaBase,
+                                                    e.target.value as CustomFormulaOperation,
+                                                    customFormulaValue
+                                                )}
+                                        >
+                                            <option value="*">Multiply By</option>
+                                            <option value="+">Add</option>
+                                            <option value="-">Subtract</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={glob.fieldGroup}>
+                                        <label className={glob.label}>Value</label>
+
+                                        <input
+                                            className={glob.input}
+                                            type="number"
+                                            step="any"
+                                            value={customFormulaValue}
+                                            onChange={(e) =>
+                                                updateCustomFormula(
+                                                    customFormulaBase,
+                                                    customFormulaOperation,
+                                                    e.target.value
+                                                )}
+                                            required
+                                        />
+                                    </div>
+
+                                    {customFormulaValue && (
+                                        <div className={glob.fieldGroup}>
+                                            <label className={glob.label}>Formula Preview</label>
+
+                                            <div>
+                                                {customFormulaBase === "measured_sqft"
+                                                    ? "Measured Square Footage"
+                                                    : customFormulaBase === "linear_footage"
+                                                        ? "Linear Footage"
+                                                        : "Material Quantity"
+                                                }
+                                                {" "}
+                                                {customFormulaOperation === "*"
+                                                    ? "×"
+                                                    : customFormulaOperation
+                                                }
+                                                {" "}
+                                                {customFormulaValue}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </section>
 
@@ -583,10 +679,10 @@ export default function MaterialsPage() {
                 }
 
                 library={
-                    <LibrarySection
+                    < LibrarySection
                         title={`Materials (${totalRecords})`}
                         actions={
-                            <ToggleButton
+                            < ToggleButton
                                 active={showAllMats}
                                 onClick={() => {
                                     setShowAllMats((current) => !current);
@@ -612,123 +708,125 @@ export default function MaterialsPage() {
                             onPageSizeChange={setPageSize}
                         />
 
-                        {loading ? (
-                            <p>Loading materials...</p>
-                        ) : totalRecords === 0 ? (
-                            <p className={libs.emptyState}>
-                                {searchQuery
-                                    ? "No materials match your search."
-                                    : "No materials yet."
-                                }
-                            </p>
-                        ) : (
-                            <>
-                                <div className={libs.recordList}>
-                                    {paginatedRecords.map((m) => {
-                                        const catName = getCatName(m.category_id);
-                                        const unitName = getUnitName(m.unit_id);
-                                        const parentName = getParentMatName(m.parent_material_id);
+                        {
+                            loading ? (
+                                <p>Loading materials...</p>
+                            ) : totalRecords === 0 ? (
+                                <p className={libs.emptyState}>
+                                    {searchQuery
+                                        ? "No materials match your search."
+                                        : "No materials yet."
+                                    }
+                                </p>
+                            ) : (
+                                <>
+                                    <div className={libs.recordList}>
+                                        {paginatedRecords.map((m) => {
+                                            const catName = getCatName(m.category_id);
+                                            const unitName = getUnitName(m.unit_id);
+                                            const parentName = getParentMatName(m.parent_material_id);
 
-                                        return (
-                                            <article
-                                                key={m.id}
-                                                className={`${libs.recordCard} ${m.is_archived ? libs.archivedRecord : ""}`}
-                                            >
-                                                <div className={libs.recordTitleRow}>
-                                                    <div className={libs.recordTitleGroup}>
-                                                        <h3 className={libs.recordTitle}>{m.name}</h3>
+                                            return (
+                                                <article
+                                                    key={m.id}
+                                                    className={`${libs.recordCard} ${m.is_archived ? libs.archivedRecord : ""}`}
+                                                >
+                                                    <div className={libs.recordTitleRow}>
+                                                        <div className={libs.recordTitleGroup}>
+                                                            <h3 className={libs.recordTitle}>{m.name}</h3>
 
-                                                        {m.is_archived && (
-                                                            <span className={libs.archivedBadge}>
-                                                                Archived
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                            {m.is_archived && (
+                                                                <span className={libs.archivedBadge}>
+                                                                    Archived
+                                                                </span>
+                                                            )}
+                                                        </div>
 
-                                                    <div className={glob.iconActions}>
-                                                        {!m.is_archived && (
+                                                        <div className={glob.iconActions}>
+                                                            {!m.is_archived && (
+                                                                <button
+                                                                    className={glob.iconButton}
+                                                                    type="button"
+                                                                    aria-label={`Edit ${m.name}`}
+                                                                    title="Edit Material"
+                                                                    onClick={() => startEditing(m)}
+                                                                >
+                                                                    <Pencil size={16} />
+                                                                </button>
+                                                            )}
+
                                                             <button
                                                                 className={glob.iconButton}
                                                                 type="button"
-                                                                aria-label={`Edit ${m.name}`}
-                                                                title="Edit Material"
-                                                                onClick={() => startEditing(m)}
+                                                                title={m.is_archived ? "Restore Material" : "Archive Material"}
+                                                                disabled={updatingMatId === m.id}
+                                                                onClick={() => void toggleArchived(m)}
                                                             >
-                                                                <Pencil size={16} />
+                                                                {updatingMatId === m.id
+                                                                    ? <Loader size={16} />
+                                                                    : m.is_archived
+                                                                        ? <ArchiveRestore size={16} />
+                                                                        : <ArchiveX size={16} />}
                                                             </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className={libs.recordDetails}>
+                                                        {m.size_label && (
+                                                            <span>{m.size_label}</span>
                                                         )}
 
-                                                        <button
-                                                            className={glob.iconButton}
-                                                            type="button"
-                                                            title={m.is_archived ? "Restore Material" : "Archive Material"}
-                                                            disabled={updatingMatId === m.id}
-                                                            onClick={() => void toggleArchived(m)}
-                                                        >
-                                                            {updatingMatId === m.id
-                                                                ? <Loader size={16} />
-                                                                : m.is_archived
-                                                                    ? <ArchiveRestore size={16} />
-                                                                    : <ArchiveX size={16} />}
-                                                        </button>
+                                                        {catName && (
+                                                            <span>Category:{" "}{catName}</span>
+                                                        )}
+
+                                                        {unitName && (
+                                                            <span>Unit:{" "}{unitName}</span>
+                                                        )}
+
+                                                        {parentName && (
+                                                            <span>Parent:{" "}{parentName}</span>
+                                                        )}
+
+                                                        {m.coverage_per_unit !== null && (
+                                                            <span>Coverage:{" "}{m.coverage_per_unit}</span>
+                                                        )}
+
+                                                        {m.cost !== null && (
+                                                            <span>Cost: ${Number(m.cost).toFixed(2)}</span>
+                                                        )}
+
+                                                        {m.sell_price !== null && (
+                                                            <span>Price: ${Number(m.sell_price).toFixed(2)}</span>
+                                                        )}
+
+                                                        {m.markup_percent !== null && (
+                                                            <span>Markup:{" "}{m.markup_percent}%</span>
+                                                        )}
+
+                                                        {m.notes && (
+                                                            <span>{m.notes}</span>
+                                                        )}
                                                     </div>
-                                                </div>
+                                                </article>
+                                            );
+                                        })}
+                                    </div>
 
-                                                <div className={libs.recordDetails}>
-                                                    {m.size_label && (
-                                                        <span>{m.size_label}</span>
-                                                    )}
-
-                                                    {catName && (
-                                                        <span>Category:{" "}{catName}</span>
-                                                    )}
-
-                                                    {unitName && (
-                                                        <span>Unit:{" "}{unitName}</span>
-                                                    )}
-
-                                                    {parentName && (
-                                                        <span>Parent:{" "}{parentName}</span>
-                                                    )}
-
-                                                    {m.coverage_per_unit !== null && (
-                                                        <span>Coverage:{" "}{m.coverage_per_unit}</span>
-                                                    )}
-
-                                                    {m.cost !== null && (
-                                                        <span>Cost: ${Number(m.cost).toFixed(2)}</span>
-                                                    )}
-
-                                                    {m.sell_price !== null && (
-                                                        <span>Price: ${Number(m.sell_price).toFixed(2)}</span>
-                                                    )}
-
-                                                    {m.markup_percent !== null && (
-                                                        <span>Markup:{" "}{m.markup_percent}%</span>
-                                                    )}
-
-                                                    {m.notes && (
-                                                        <span>{m.notes}</span>
-                                                    )}
-                                                </div>
-                                            </article>
-                                        );
-                                    })}
-                                </div>
-
-                                <LibraryPagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    totalRecords={totalRecords}
-                                    pageSize={pageSize}
-                                    onPageChange={setCurrentPage}
-                                    onPageSizeChange={setPageSize}
-                                />
-                            </>
-                        )}
-                    </LibrarySection>
+                                    <LibraryPagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        totalRecords={totalRecords}
+                                        pageSize={pageSize}
+                                        onPageChange={setCurrentPage}
+                                        onPageSizeChange={setPageSize}
+                                    />
+                                </>
+                            )
+                        }
+                    </LibrarySection >
                 }
             />
-        </main>
+        </main >
     );
 }

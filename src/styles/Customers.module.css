@@ -1,0 +1,96 @@
+.section {
+  margin-top: 2rem;
+}
+
+.sectionHeading {
+  margin-bottom: 1rem;
+}
+
+.addressGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.copyButtonRow {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+.customerList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.customerCard {
+  position: relative;
+  border: 1px solid var(--navy);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  min-width: 0;
+}
+
+.customerName {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.customerDetails {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.customerAddress {
+  margin-top: 0.5rem;
+}
+
+.emptyState {
+  margin: 0;
+}
+
+.customerTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.archivedBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--navy);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.archivedCard {
+  opacity: 0.65;
+}
+
+@media (min-width: 800px) {
+  .customerList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .customerCard {
+    padding-right: 4.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .customerList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .addressGrid {
+    grid-template-columns: 1fr;
+  }
+}
