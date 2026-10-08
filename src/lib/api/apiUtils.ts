@@ -40,6 +40,15 @@ export function jsonError(message: string, status = 400) {
 export function serverError(routeName: string, error: unknown) {
   console.error(`[${routeName}]`, error);
 
+  if (
+    error !== null &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === "23505"
+  ) {
+    return jsonError("A record with this name already exists.", 409);
+  }
+
   return Response.json(
     { error: "Internal server error." },
     { status: 500 }
