@@ -100,7 +100,7 @@ export default function NewEstimatePage() {
             if (!res.ok) throw new Error(data.error || "Failed to create estimate.");
 
             toast.success("Estimate created!");
-            router.push("/estimates");
+            router.push(`/estimates/${data.id}?step=2`);
         } catch (err) {
             console.error(err);
             toast.error(err instanceof Error ? err.message : "Failed to create estimate.");
@@ -309,7 +309,7 @@ export default function NewEstimatePage() {
                     type="submit"
                     disabled={saving || loading}
                 >
-                    {saving ? <Loader size={16} /> : "Create Estimate"}
+                    {saving ? <Loader size={16} /> : "Save & Next"}
                 </button>
 
                 <button

@@ -92,3 +92,37 @@ export type EstimateDetail = EstimateSummary & {
   accepted_at: string | null;
   denied_at: string | null;
 };
+
+/* AREAS */
+export type EstimateArea = {
+  id: string;
+  estimate_id: string;
+
+  area_id: string | null;
+  area_name: string;
+
+  instance_number: number;
+  display_label: string;
+  display_order: number;
+
+  notes: string | null;
+};
+
+export type CreateEstimateAreaBody = {
+  areaId?: string;
+  name?: string;
+  notes?: string;
+  saveToLibrary?: boolean;
+};
+
+export type EstimateAreaRouteContext = {
+  params: Promise<{
+    id: string;
+    areaId: string;
+  }>;
+};
+
+export type UpdateEstimateAreaBody = {
+  displayLabel?: string;
+  notes?: string | null;
+};
