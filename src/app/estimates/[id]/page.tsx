@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import EstStepNav from "@/components/Estimates/EstStepNav";
 import { Loader } from "lucide-react";
+import EstMeasurementsStep from "@/components/Estimates/EstMeasurementsStep";
 
 export default function EstimateDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -33,10 +34,19 @@ export default function EstimateDetailPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
+    const saveIntentRef = useRef<"next" | "exit">("next");
+
+    /* STEP 2 */
     const [areasHasDraft, setAreasHasDraft] = useState(false);
     const [areasBusy, setAreasBusy] = useState(false);
 
-    const saveIntentRef = useRef<"next" | "exit">("next");
+    /* STEP 3 */
+    const [measurementsHasDraft, setMeasurementsHasDraft] = useState(false);
+    const [measurementsBusy, setMeasurementsBusy] = useState(false);
+
+    /* STEP 4 */
+
+    /* STEP 5 */
 
     useEffect(() => {
         let cancelled = false;
@@ -203,18 +213,49 @@ export default function EstimateDetailPage() {
         }
     }
 
-    function handleNextStep() {
-        if (saving) return;
+    async function handleNextStep() {
+        if (saving || !estimate || !editable || currentStep >= 5) return;
 
         if (currentStep === 1) {
             saveIntentRef.current = "next";
             infoFormRef.current?.requestSubmit();
             return;
         }
+
+        if (areasBusy || measurementsBusy) {
+            toast.error("Please wait for the current operation to finish.");
+            return;
+        } else if (areasHasDraft || measurementsHasDraft) {
+            toast.error("Finish or cancel your changes before continuing.");
+            return;
+        }
+
+        const nextStep = currentStep + 1;
+
+        try {
+            setSaving(true);
+
+            const res = await fetch(`/api/estimates/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ currentStep: nextStep }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to save estimate progress.");
+
+            setEstimate(data as EstimateDetail);
+            setCurrentStep(nextStep);
+        } catch (err) {
+            console.error(err);
+            toast.error(err instanceof Error ? err.message : "Failed to save estimate progress.");
+        } finally {
+            setSaving(false);
+        }
     }
 
     async function handleSaveAndExit() {
-        if (saving || areasBusy) {
+        if (saving || areasBusy || measurementsBusy) {
             toast.error("Please wait for the current operation to finish.");
             return;
         }
@@ -234,8 +275,8 @@ export default function EstimateDetailPage() {
             return;
         }
 
-        if (areasHasDraft) {
-            toast.error("Finish or cancel your Area/Room changes before exiting.");
+        if (areasHasDraft || measurementsHasDraft) {
+            toast.error("Finish or cancel your changes before exiting.");
             return;
         }
 
@@ -559,11 +600,32 @@ export default function EstimateDetailPage() {
                             </div>
                         )}
 
+                        {currentStep === 3 && (
+                            <div className={est.builderStep}>
+                                <EstMeasurementsStep
+                                    estimateId={id}
+                                    editable={editable}
+                                    onDraftChange={setMeasurementsHasDraft}
+                                    onBusyChange={setMeasurementsBusy}
+                                />
+                            </div>
+                        )}
+
                         <EstStepNav
                             currentStep={currentStep}
                             saving={saving}
-                            previousDisabled={!editable}
-                            nextDisabled={!editable || currentStep >= 2}
+                            previousDisabled={
+                                !editable ||
+                                areasBusy || measurementsBusy ||
+                                areasHasDraft || measurementsHasDraft
+                            }
+                            nextDisabled={
+                                !editable ||
+                                currentStep >= 5 ||
+                                areasBusy || measurementsBusy ||
+                                (currentStep === 2 && areasHasDraft) ||
+                                (currentStep === 3 && measurementsHasDraft)
+                            }
                             onPrevious={handlePreviousStep}
                             onNext={handleNextStep}
                         />

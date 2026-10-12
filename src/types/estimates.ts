@@ -147,3 +147,92 @@ export type UpdateEstimateAreaBody = {
   displayLabel?: string;
   notes?: string | null;
 };
+
+/* MEASUREMENTS */
+export type MeasurementType = "wall" | "ceiling" | "other";
+
+export interface MeasurementDimensions {
+  measurementType: MeasurementType;
+  lengthFt: number | null;
+  widthFt: number | null;
+  heightFt: number | null;
+  quantity: number;
+}
+
+export interface MeasurementCalculations {
+  squareFeet: number | null;
+  linearFeet: number | null;
+}
+
+export interface EstimateMeasurement {
+  id: string;
+  estimate_area_id: string;
+  measurement_type: MeasurementType;
+  description: string | null;
+  length_ft: number | null;
+  width_ft: number | null;
+  height_ft: number | null;
+  quantity: number;
+  square_feet: number | null;
+  linear_feet: number | null;
+  override_square_feet: boolean;
+  override_linear_feet: boolean;
+  display_order: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EstimateMeasurementInput {
+  estimateAreaId: string;
+  measurementType: MeasurementType;
+  description?: string | null;
+  lengthFt?: number | null;
+  widthFt?: number | null;
+  heightFt?: number | null;
+  quantity: number;
+  squareFeet?: number | null;
+  linearFeet?: number | null;
+  overrideSquareFeet?: boolean;
+  overrideLinearFeet?: boolean;
+  notes?: string | null;
+}
+
+export interface EstimateMeasurementRouteContext {
+  params: Promise<{ id: string; measurementId: string }>;
+}
+
+export type MeasurementForm = {
+  measurementType: MeasurementType;
+  description: string;
+  lengthFt: string;
+  widthFt: string;
+  heightFt: string;
+  quantity: string;
+  squareFeet: string;
+  linearFeet: string;
+  notes: string;
+  overrideSquareFeet: boolean;
+  overrideLinearFeet: boolean;
+};
+
+export const emptyMeasurementForm: MeasurementForm = {
+  measurementType: "wall",
+  description: "",
+  lengthFt: "",
+  widthFt: "",
+  heightFt: "",
+  quantity: "1",
+  squareFeet: "",
+  linearFeet: "",
+  notes: "",
+  overrideSquareFeet: false,
+  overrideLinearFeet: false,
+};
+
+export type EstMeasurementsStepProps = {
+  estimateId: string;
+  editable: boolean;
+  onDraftChange?: (hasDraft: boolean) => void;
+  onBusyChange?: (isBusy: boolean) => void;
+};
