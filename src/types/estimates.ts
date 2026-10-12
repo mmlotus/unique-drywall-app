@@ -1,3 +1,13 @@
+import { ReactNode } from "react";
+
+export type AppModalProps = {
+  open: boolean;
+  title: string;
+  children: ReactNode;
+  onClose: () => void;
+  busy?: boolean;
+};
+
 export type CreateEstimateBody = {
   customerId?: string;
   builderFirmId?: string | null;
@@ -15,6 +25,7 @@ export type CreateEstimateBody = {
 };
 
 export type UpdateEstimateBody = {
+  currentStep?: number;
   customerId?: string;
   builderFirmId?: string | null;
   estimateDate?: string;
@@ -85,12 +96,22 @@ export const emptyEstimateFormData: CreateEstimateBody = {
 };
 
 export type EstimateDetail = EstimateSummary & {
+  current_step: number;
   custom_contact_name: string | null;
   custom_contact_phone: string | null;
   custom_contact_email: string | null;
   notes: string | null;
   accepted_at: string | null;
   denied_at: string | null;
+};
+
+export type EstimateStepNavProps = {
+  currentStep: number;
+  saving?: boolean;
+  previousDisabled?: boolean;
+  nextDisabled?: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
 };
 
 /* AREAS */

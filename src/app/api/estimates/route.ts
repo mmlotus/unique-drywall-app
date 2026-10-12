@@ -115,7 +115,8 @@ export async function POST(req: Request) {
                 custom_contact_name,
                 custom_contact_phone,
                 custom_contact_email,
-                notes
+                notes,
+                current_step
             )
             VALUES (
                 ${customerId},
@@ -131,7 +132,8 @@ export async function POST(req: Request) {
                 ${primaryContactType === "custom" ? customContactName : null},
                 ${primaryContactType === "custom" ? customContactPhone : null},
                 ${primaryContactType === "custom" ? customContactEmail : null},
-                ${notes}
+                ${notes},
+                2
             )
             RETURNING *
         `;

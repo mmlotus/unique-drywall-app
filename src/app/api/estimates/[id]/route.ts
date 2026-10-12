@@ -40,6 +40,7 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
         }
 
         const allowedFields = [
+            "currentStep",
             "customerId",
             "builderFirmId",
             "estimateDate",
@@ -61,17 +62,24 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
             return jsonError("Invalid estimate update fields.");
         }
 
+        if (Object.prototype.hasOwnProperty.call(body, "currentStep") && (
+            !Number.isInteger(body.currentStep) ||
+            body.currentStep! < 1 ||
+            body.currentStep! > 5
+        )) {
+            return jsonError("Invalid estimate step.");
+        }
+
         const has = (key: keyof UpdateEstimateBody) =>
             Object.prototype.hasOwnProperty.call(body, key);
 
         if (keys.some((key) => {
+            if (key === "currentStep") return false;
+
             const value = body[key as keyof UpdateEstimateBody];
 
-            return (
-                value !== null && typeof value !== "string"
-            );
-        })
-        ) {
+            return value !== null && typeof value !== "string";
+        })) {
             return jsonError("Invalid field value.");
         }
 
@@ -149,6 +157,12 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
         const updated = await sql`
             UPDATE estimates
             SET
+                current_step = CASE
+                    WHEN ${has("currentStep")}
+                    THEN ${body.currentStep ?? null}::integer
+                    ELSE current_step
+                END,
+                
                 customer_id = CASE
                     WHEN ${has("customerId")}
                     THEN ${customerId || null}::uuid

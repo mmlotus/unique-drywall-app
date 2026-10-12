@@ -100,7 +100,7 @@ export default function NewEstimatePage() {
             if (!res.ok) throw new Error(data.error || "Failed to create estimate.");
 
             toast.success("Estimate created!");
-            router.push(`/estimates/${data.id}?step=2`);
+            router.push(`/estimates/${data.id}`);
         } catch (err) {
             console.error(err);
             toast.error(err instanceof Error ? err.message : "Failed to create estimate.");

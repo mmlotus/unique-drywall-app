@@ -10,16 +10,19 @@ import glob from "@/styles/Global.module.css";
 import libs from "@/styles/Libraries.module.css";
 import est from "@/styles/Estimates.module.css";
 import { EstimateContactOption, EstimateDetail, UpdateEstimateBody } from "@/types";
-import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import EstStepNav from "@/components/Estimates/EstStepNav";
+import { Loader } from "lucide-react";
 
 export default function EstimateDetailPage() {
     const { id } = useParams<{ id: string }>();
+    const router = useRouter();
 
     const [currentStep, setCurrentStep] = useState(1);
+    const infoFormRef = useRef<HTMLFormElement>(null);
 
     const [estimate, setEstimate] = useState<EstimateDetail | null>(null);
     const [form, setForm] = useState<UpdateEstimateBody>({});
@@ -29,6 +32,11 @@ export default function EstimateDetailPage() {
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+
+    const [areasHasDraft, setAreasHasDraft] = useState(false);
+    const [areasBusy, setAreasBusy] = useState(false);
+
+    const saveIntentRef = useRef<"next" | "exit">("next");
 
     useEffect(() => {
         let cancelled = false;
@@ -71,11 +79,7 @@ export default function EstimateDetailPage() {
                 setCustomers(data.customers);
                 setBuilders(data.builders);
 
-                setCurrentStep(
-                    new URLSearchParams(window.location.search).get("step") === "2"
-                        ? 2
-                        : 1
-                );
+                setCurrentStep(data.estimate.current_step);
 
                 setForm({
                     customerId: data.estimate.customer_id,
@@ -134,7 +138,9 @@ export default function EstimateDetailPage() {
     async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
 
-        if (!estimate || estimate.status !== "draft") return;
+        if (!estimate || estimate.status !== "draft" || saving) return;
+
+        const exiting = saveIntentRef.current === "exit";
 
         try {
             setSaving(true);
@@ -142,7 +148,10 @@ export default function EstimateDetailPage() {
             const res = await fetch(`/api/estimates/${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
+                body: JSON.stringify({
+                    ...form,
+                    currentStep: exiting ? 1 : 2,
+                }),
             });
 
             const data = await res.json();
@@ -150,15 +159,108 @@ export default function EstimateDetailPage() {
             if (!res.ok) throw new Error(data.error || "Failed to save estimate.");
 
             setEstimate(data as EstimateDetail);
-            toast.success("Estimate updated!");
-            setCurrentStep(2);
+
+            if (exiting) {
+                toast.success("Estimate saved!");
+                router.push("/estimates");
+            } else {
+                toast.success("Estimate updated!");
+                setCurrentStep(2);
+            }
         } catch (err) {
             console.error(err);
-            toast.error(
-                err instanceof Error
-                    ? err.message
-                    : "Failed to save estimate."
-            );
+            toast.error(err instanceof Error ? err.message : "Failed to save estimate.");
+        } finally {
+            saveIntentRef.current = "next";
+            setSaving(false);
+        }
+    }
+
+    async function handlePreviousStep() {
+        if (saving || currentStep <= 1 || !estimate || !editable) return;
+
+        const previousStep = currentStep - 1;
+
+        try {
+            setSaving(true);
+
+            const res = await fetch(`/api/estimates/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ currentStep: previousStep }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to save estimate progress.");
+
+            setEstimate(data as EstimateDetail);
+            setCurrentStep(previousStep);
+        } catch (err) {
+            console.error(err);
+            toast.error(err instanceof Error ? err.message : "Failed to save estimate progress.");
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    function handleNextStep() {
+        if (saving) return;
+
+        if (currentStep === 1) {
+            saveIntentRef.current = "next";
+            infoFormRef.current?.requestSubmit();
+            return;
+        }
+    }
+
+    async function handleSaveAndExit() {
+        if (saving || areasBusy) {
+            toast.error("Please wait for the current operation to finish.");
+            return;
+        }
+
+        if (currentStep === 1) {
+            if (editable) {
+                saveIntentRef.current = "exit";
+                infoFormRef.current?.requestSubmit();
+
+                if (!infoFormRef.current?.checkValidity()) {
+                    saveIntentRef.current = "next";
+                }
+            } else {
+                router.push("/estimates");
+            }
+
+            return;
+        }
+
+        if (areasHasDraft) {
+            toast.error("Finish or cancel your Area/Room changes before exiting.");
+            return;
+        }
+
+        if (!editable) {
+            router.push("/estimates");
+            return;
+        }
+
+        try {
+            setSaving(true);
+
+            const res = await fetch(`/api/estimates/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ currentStep }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to save estimate progress.");
+
+            toast.success("Estimate saved!");
+            router.push("/estimates");
+        } catch (err) {
+            console.error(err);
+            toast.error(err instanceof Error ? err.message : "Failed to save estimate progress.");
         } finally {
             setSaving(false);
         }
@@ -200,9 +302,14 @@ export default function EstimateDetailPage() {
                             </div>
                         </div>
 
-                        <Link href="/estimates" className={glob.actionButton}>
-                            Exit
-                        </Link>
+                        <button
+                            type="button"
+                            className={glob.actionButton}
+                            onClick={() => void handleSaveAndExit()}
+                            disabled={saving}
+                        >
+                            {saving ? <Loader size={16} /> : "Save & Exit"}
+                        </button>
                     </header>
 
                     <nav className={est.stepProgress}>
@@ -234,7 +341,11 @@ export default function EstimateDetailPage() {
 
                     <div className={est.builderBody}>
                         {currentStep === 1 && (
-                            <form className={`${glob.form} ${est.builderForm}`} onSubmit={handleSubmit}>
+                            <form
+                                ref={infoFormRef}
+                                className={`${glob.form} ${est.builderForm}`}
+                                onSubmit={handleSubmit}
+                            >
                                 <h2 className={libs.sectionHeading}>Estimate Information</h2>
 
                                 <div className={glob.fieldGroup}>
@@ -434,16 +545,6 @@ export default function EstimateDetailPage() {
                                         />
                                     </div>
                                 </section>
-
-                                {editable && (
-                                    <button
-                                        className={glob.button}
-                                        type="submit"
-                                        disabled={saving}
-                                    >
-                                        {saving ? <Loader size={16} /> : "Save & Next"}
-                                    </button>
-                                )}
                             </form>
                         )}
 
@@ -452,27 +553,20 @@ export default function EstimateDetailPage() {
                                 <EstimateAreasStep
                                     estimateId={id}
                                     editable={editable}
+                                    onDraftChange={setAreasHasDraft}
+                                    onBusyChange={setAreasBusy}
                                 />
-
-                                <div className={est.stepNavigation}>
-                                    <button
-                                        type="button"
-                                        className={glob.buttonTwo}
-                                        onClick={() => setCurrentStep(1)}
-                                    >
-                                        <ChevronLeft size={16} /> Back
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className={glob.button}
-                                        onClick={() => setCurrentStep(3)}
-                                    >
-                                        <ChevronRight size={16} /> Next
-                                    </button>
-                                </div>
                             </div>
                         )}
+
+                        <EstStepNav
+                            currentStep={currentStep}
+                            saving={saving}
+                            previousDisabled={!editable}
+                            nextDisabled={!editable || currentStep >= 2}
+                            onPrevious={handlePreviousStep}
+                            onNext={handleNextStep}
+                        />
                     </div>
                 </div>
             </div>
