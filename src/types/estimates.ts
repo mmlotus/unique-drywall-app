@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Material } from "./materials";
 
 export type AppModalProps = {
   open: boolean;
@@ -231,6 +232,57 @@ export const emptyMeasurementForm: MeasurementForm = {
 };
 
 export type EstMeasurementsStepProps = {
+  estimateId: string;
+  editable: boolean;
+  onDraftChange?: (hasDraft: boolean) => void;
+  onBusyChange?: (isBusy: boolean) => void;
+};
+
+
+/* MATERIALS */
+export type EstimateMaterial = {
+  id: string;
+  estimate_area_id: string;
+  material_id: string;
+  material_variant_id: string | null;
+  material_name: string;
+  variant_name: string | null;
+  unit_name: string | null;
+  calculation_method: Material["calculation_method"] | null;
+  calculation_settings: Record<string, unknown>;
+  suggested_quantity: number | null;
+  quantity: number;
+  quantity_overridden: boolean;
+  coverage_per_unit: number | null;
+  total_coverage: number | null;
+  unit_cost: number | null;
+  unit_price: number | null;
+  markup_percent: number | null;
+  line_total: number;
+  display_order: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateEstimateMaterialBody = {
+  estimateAreaId: string;
+  materialId: string;
+  materialVariantId?: string | null;
+  quantity?: number;
+  notes?: string | null;
+};
+
+export type UpdateEstimateMaterialBody = {
+  quantity?: number;
+  notes?: string | null;
+};
+
+export type EstimateMaterialRouteContext = {
+  params: Promise<{ id: string; estMatId: string }>;
+};
+
+export type EstMaterialsStepProps = {
   estimateId: string;
   editable: boolean;
   onDraftChange?: (hasDraft: boolean) => void;

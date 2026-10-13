@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import EstStepNav from "@/components/Estimates/EstStepNav";
 import { Loader } from "lucide-react";
 import EstMeasurementsStep from "@/components/Estimates/EstMeasurementsStep";
+import EstMaterialsStep from "@/components/Estimates/EstMaterialsStep";
 
 export default function EstimateDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -45,6 +46,8 @@ export default function EstimateDetailPage() {
     const [measurementsBusy, setMeasurementsBusy] = useState(false);
 
     /* STEP 4 */
+    const [materialsHasDraft, setMaterialsHasDraft] = useState(false);
+    const [materialsBusy, setMaterialsBusy] = useState(false);
 
     /* STEP 5 */
 
@@ -160,7 +163,7 @@ export default function EstimateDetailPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...form,
-                    currentStep: exiting ? 1 : 2,
+                    currentStep: Math.max(estimate.current_step, exiting ? 1 : 2),
                 }),
             });
 
@@ -186,31 +189,17 @@ export default function EstimateDetailPage() {
         }
     }
 
-    async function handlePreviousStep() {
-        if (saving || currentStep <= 1 || !estimate || !editable) return;
+    function handlePreviousStep() {
+        if (saving || currentStep <= 1 || !estimate || !editable
+            || areasBusy || measurementsBusy || materialsBusy
+        ) return;
 
-        const previousStep = currentStep - 1;
-
-        try {
-            setSaving(true);
-
-            const res = await fetch(`/api/estimates/${id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ currentStep: previousStep }),
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Failed to save estimate progress.");
-
-            setEstimate(data as EstimateDetail);
-            setCurrentStep(previousStep);
-        } catch (err) {
-            console.error(err);
-            toast.error(err instanceof Error ? err.message : "Failed to save estimate progress.");
-        } finally {
-            setSaving(false);
+        if (areasHasDraft || measurementsHasDraft || materialsHasDraft) {
+            toast.error("Finish or cancel your changes before going back.");
+            return;
         }
+
+        setCurrentStep((step) => step - 1);
     }
 
     async function handleNextStep() {
@@ -222,15 +211,16 @@ export default function EstimateDetailPage() {
             return;
         }
 
-        if (areasBusy || measurementsBusy) {
+        if (areasBusy || measurementsBusy || materialsBusy) {
             toast.error("Please wait for the current operation to finish.");
             return;
-        } else if (areasHasDraft || measurementsHasDraft) {
+        } else if (areasHasDraft || measurementsHasDraft || materialsHasDraft) {
             toast.error("Finish or cancel your changes before continuing.");
             return;
         }
 
         const nextStep = currentStep + 1;
+        const savedStep = Math.max(estimate.current_step, nextStep);
 
         try {
             setSaving(true);
@@ -238,7 +228,7 @@ export default function EstimateDetailPage() {
             const res = await fetch(`/api/estimates/${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ currentStep: nextStep }),
+                body: JSON.stringify({ currentStep: savedStep }),
             });
 
             const data = await res.json();
@@ -255,7 +245,7 @@ export default function EstimateDetailPage() {
     }
 
     async function handleSaveAndExit() {
-        if (saving || areasBusy || measurementsBusy) {
+        if (saving || areasBusy || measurementsBusy || materialsBusy) {
             toast.error("Please wait for the current operation to finish.");
             return;
         }
@@ -275,7 +265,7 @@ export default function EstimateDetailPage() {
             return;
         }
 
-        if (areasHasDraft || measurementsHasDraft) {
+        if (areasHasDraft || measurementsHasDraft || materialsHasDraft) {
             toast.error("Finish or cancel your changes before exiting.");
             return;
         }
@@ -285,13 +275,15 @@ export default function EstimateDetailPage() {
             return;
         }
 
+        if (!estimate) return;
+
         try {
             setSaving(true);
 
             const res = await fetch(`/api/estimates/${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ currentStep }),
+                body: JSON.stringify({ currentStep: Math.max(estimate.current_step, currentStep) }),
             });
 
             const data = await res.json();
@@ -611,20 +603,32 @@ export default function EstimateDetailPage() {
                             </div>
                         )}
 
+                        {currentStep === 4 && (
+                            <div className={est.builderStep}>
+                                <EstMaterialsStep
+                                    estimateId={id}
+                                    editable={editable}
+                                    onDraftChange={setMaterialsHasDraft}
+                                    onBusyChange={setMaterialsBusy}
+                                />
+                            </div>
+                        )}
+
                         <EstStepNav
                             currentStep={currentStep}
                             saving={saving}
                             previousDisabled={
                                 !editable ||
-                                areasBusy || measurementsBusy ||
-                                areasHasDraft || measurementsHasDraft
+                                areasBusy || measurementsBusy || materialsBusy ||
+                                areasHasDraft || measurementsHasDraft || materialsHasDraft
                             }
                             nextDisabled={
                                 !editable ||
                                 currentStep >= 5 ||
-                                areasBusy || measurementsBusy ||
+                                areasBusy || measurementsBusy || materialsBusy ||
                                 (currentStep === 2 && areasHasDraft) ||
-                                (currentStep === 3 && measurementsHasDraft)
+                                (currentStep === 3 && measurementsHasDraft) ||
+                                (currentStep === 4 && materialsHasDraft)
                             }
                             onPrevious={handlePreviousStep}
                             onNext={handleNextStep}
