@@ -48,10 +48,10 @@ export type EstimateRouteContext = {
   params: Promise<{ id: string }>;
 };
 
-export type EstimateStatus = "draft" | "accepted" | "denied";
+export type EstimateStatus = "draft" | "finalized" | "accepted" | "denied";
 
 export type UpdateEstimateStatusBody = {
-  status: "accepted" | "denied";
+  status: "finalized" | "accepted" | "denied";
 };
 
 export type CreateEstimateRevisionBody = {
@@ -115,8 +115,11 @@ export type EstimateStepNavProps = {
   saving?: boolean;
   previousDisabled?: boolean;
   nextDisabled?: boolean;
+  exitDisabled?: boolean;
   onPrevious: () => void;
   onNext: () => void;
+  onSaveAndExit: () => void;
+  onFinalize: () => void;
 };
 
 /* AREAS */

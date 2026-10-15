@@ -219,7 +219,7 @@ export default function EstimateDetailPage() {
     }
 
     function handlePreviousStep() {
-        if (saving || currentStep <= 1 || !estimate || !editable
+        if (saving || currentStep <= 1 || !estimate
             || areasBusy || measurementsBusy || materialsBusy || reviewBusy
         ) return;
 
@@ -232,7 +232,12 @@ export default function EstimateDetailPage() {
     }
 
     async function handleNextStep() {
-        if (saving || !estimate || !editable || currentStep >= 5) return;
+        if (saving || !estimate || currentStep >= 5) return;
+
+        if (!editable) {
+            setCurrentStep(currentStep + 1);
+            return;
+        }
 
         if (currentStep === 1) {
             saveIntentRef.current = "next";
@@ -268,6 +273,43 @@ export default function EstimateDetailPage() {
         } catch (err) {
             console.error(err);
             toast.error(err instanceof Error ? err.message : "Failed to save estimate progress.");
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    async function handleFinalizeEstimate() {
+        if (!estimate || estimate.status !== "draft" || saving) return;
+        if (currentStep !== 5) return;
+
+        if (areasBusy || measurementsBusy || materialsBusy || reviewBusy) {
+            toast.error("Please wait for the current operation to finish.");
+            return;
+        }
+
+        if (areasHasDraft || measurementsHasDraft || materialsHasDraft) {
+            toast.error("Finish or cancel your changes before finalizing.");
+            return;
+        }
+
+        try {
+            setSaving(true);
+
+            const res = await fetch(`/api/estimates/${id}/status`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "finalized" }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to finalize estimate.");
+
+            setEstimate(data as EstimateDetail);
+            toast.success("Estimate finalized successfully!");
+            router.push("/estimates");
+        } catch (err) {
+            console.error(err);
+            toast.error(err instanceof Error ? err.message : "Failed to finalize estimate.");
         } finally {
             setSaving(false);
         }
@@ -671,20 +713,18 @@ export default function EstimateDetailPage() {
                             currentStep={currentStep}
                             saving={saving}
                             previousDisabled={
-                                !editable ||
                                 areasBusy || measurementsBusy || materialsBusy ||
                                 areasHasDraft || measurementsHasDraft || materialsHasDraft
                             }
                             nextDisabled={
-                                !editable ||
-                                currentStep >= 5 ||
-                                areasBusy || measurementsBusy || materialsBusy ||
-                                (currentStep === 2 && areasHasDraft) ||
-                                (currentStep === 3 && measurementsHasDraft) ||
-                                (currentStep === 4 && materialsHasDraft)
+                                areasBusy || measurementsBusy || materialsBusy || reviewBusy ||
+                                areasHasDraft || measurementsHasDraft || materialsHasDraft
                             }
                             onPrevious={handlePreviousStep}
                             onNext={handleNextStep}
+                            onSaveAndExit={() => void handleSaveAndExit()}
+                            onFinalize={() => void handleFinalizeEstimate()}
+                            exitDisabled={areasBusy || measurementsBusy || materialsBusy || reviewBusy}
                         />
                     </div>
                 </div>

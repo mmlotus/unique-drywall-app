@@ -198,4 +198,25 @@
     .builderBody {
         padding: 16px;
     }
+
+    .stepNavigation {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        align-items: center;
+    }
+
+    .stepNavigation button {
+        width: 100%;
+        min-width: 0;
+        height: 48px;
+        min-height: 48px;
+        margin: 0;
+        padding: 4px 6px;
+        flex: none;
+        font-size: 14px;
+        line-height: 1.2;
+        white-space: normal;
+        text-align: center;
+    }
 }

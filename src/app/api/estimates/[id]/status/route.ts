@@ -20,12 +20,20 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
 
         const keys = Object.keys(body);
 
-        if (keys.length !== 1 || keys[0] !== "status" || !["accepted", "denied"].includes(body.status)) return jsonError("Invalid estimate status.");
+        if (keys.length !== 1 || keys[0] !== "status" || !["finalized", "accepted", "denied"].includes(body.status)) return jsonError("Invalid estimate status.");
 
         const updated = await sql`
             UPDATE estimates
             SET
                 status = ${body.status},
+                estimate_number = CASE
+                    WHEN ${body.status} = 'finalized'
+                    THEN COALESCE(
+                        estimate_number,
+                        nextval('estimate_number_seq')::text
+                    )
+                    ELSE estimate_number
+                END,
                 accepted_at = CASE
                     WHEN ${body.status} = 'accepted'
                     THEN NOW()
@@ -37,7 +45,16 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
                     ELSE NULL
                 END
             WHERE id = ${id}
-                AND status = 'draft'
+                AND (
+                    (
+                        status = 'draft'
+                        AND ${body.status} IN ('finalized', 'accepted', 'denied')
+                    )
+                    OR (
+                        status = 'finalized'
+                        AND ${body.status} IN ('accepted', 'denied')
+                        )
+                )
             RETURNING *
         `;
 
@@ -50,7 +67,7 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
 
             if (existing.length === 0) return jsonError("Estimate not found.", 404);
 
-            return jsonError("Only draft estimates can be accepted or denied.", 409);
+            return jsonError("This status change is not allowed for this estimate.", 409);
         }
 
         return jsonOk(updated[0]);

@@ -8,8 +8,11 @@ export default function EstStepNav({
     saving = false,
     previousDisabled = false,
     nextDisabled = false,
+    exitDisabled = false,
     onPrevious,
     onNext,
+    onSaveAndExit,
+    onFinalize,
 }: EstimateStepNavProps) {
     return (
         <div className={est.stepNavigation}>
@@ -24,12 +27,23 @@ export default function EstStepNav({
 
             <button
                 type="button"
+                className={glob.actionButton}
+                onClick={onSaveAndExit}
+                disabled={exitDisabled || saving}
+            >
+                Save & Exit
+            </button>
+
+            <button
+                type="button"
                 className={glob.button}
-                onClick={onNext}
-                disabled={currentStep === 5 || nextDisabled || saving}
+                onClick={currentStep === 5 ? onFinalize : onNext}
+                disabled={nextDisabled || saving}
             >
                 {saving ? (
                     <Loader size={16} />
+                ) : currentStep === 5 ? (
+                    "Finalize"
                 ) : (
                     <ChevronRight size={16} />
                 )}
