@@ -32,7 +32,7 @@
     background: #fff;
     border: 1px solid #d1d5db;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: clip;
     box-sizing: border-box;
 }
 
@@ -75,6 +75,10 @@
     gap: 8px;
     padding: 16px 24px;
     border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: #fff;
 }
 
 .progressStep {
@@ -87,6 +91,12 @@
     color: #6b7280;
     min-width: 0;
     box-sizing: border-box;
+    cursor: pointer;
+    background: transparent;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    font: inherit;
 }
 
 .progressNumber {

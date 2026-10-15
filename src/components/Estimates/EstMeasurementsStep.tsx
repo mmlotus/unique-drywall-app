@@ -10,6 +10,7 @@ import LoadingSpinner from "../LoadingSpinner";
 import { Loader, Pencil, Trash2 } from "lucide-react";
 import AppModal from "../AppModal";
 import { formatMeasurementNumber, getCalculatedMeasurement, measurementToForm, parseMeasurementNumber } from "@/lib/helpers/measurementUtils";
+import { useModalNotice } from "@/hooks/useModalNotice";
 
 function typeLabel(type: MeasurementType) {
     return type === "wall" ? "Wall" : type === "ceiling" ? "Lid" : "Other";
@@ -33,6 +34,7 @@ export default function EstMeasurementsStep({
 
     const [showForm, setShowForm] = useState(false);
     const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+    const { notice, showNotice, clearNotice } = useModalNotice();
 
     const [editingMeasId, setEditingMeasId] = useState<string | null>(null);
     const [estimateAreaId, setEstimateAreaId] = useState("");
@@ -167,6 +169,7 @@ export default function EstMeasurementsStep({
     }
 
     function closeForm() {
+        clearNotice();
         setShowForm(false);
         setEditingMeasId(null);
         setEstimateAreaId("");
@@ -175,6 +178,7 @@ export default function EstMeasurementsStep({
 
     function startAdding(areaId: string) {
         if (!editable || busy || showForm) return;
+        clearNotice();
         setFields(emptyMeasurementForm);
         setEstimateAreaId(areaId);
         setEditingMeasId(null);
@@ -183,6 +187,7 @@ export default function EstMeasurementsStep({
 
     function startEditing(measurement: EstimateMeasurement) {
         if (!editable || busy || showForm) return;
+        clearNotice();
         setFields(measurementToForm(measurement));
         setEstimateAreaId(measurement.estimate_area_id);
         setEditingMeasId(measurement.id);
@@ -207,26 +212,26 @@ export default function EstMeasurementsStep({
 
         const count = Number(quantity);
         if (!Number.isInteger(count) || count <= 0) {
-            toast.error("Quantity must be a positive whole number.");
+            showNotice("Quantity must be a positive whole number.");
             return;
         }
 
         const dimensions = [lengthFt, measurementType === "wall" ? heightFt : widthFt];
         if (dimensions.some((value) => value.trim() !== "" &&
             (!Number.isFinite(Number(value)) || Number(value) <= 0))) {
-            toast.error("Dimensions must be positive numbers.");
+            showNotice("Dimensions must be positive numbers.");
             return;
         }
 
         if (overrideSquareFeet && (squareFeet.trim() === "" ||
             !Number.isFinite(Number(squareFeet)) || Number(squareFeet) < 0)) {
-            toast.error("Enter a valid square footage override.");
+            showNotice("Enter a valid square footage override.");
             return;
         }
 
         if (overrideLinearFeet && (linearFeet.trim() === "" ||
             !Number.isFinite(Number(linearFeet)) || Number(linearFeet) < 0)) {
-            toast.error("Enter a valid linear footage override.");
+            showNotice("Enter a valid linear footage override.");
             return;
         }
 
@@ -285,7 +290,7 @@ export default function EstMeasurementsStep({
             toast.success(editing ? "Measurement updated!" : "Measurement added!");
         } catch (err) {
             console.error(err);
-            toast.error(err instanceof Error ? err.message : "Failed to save measurements.");
+            showNotice(err instanceof Error ? err.message : "Failed to save measurements.");
         } finally {
             setSaving(false);
         }
@@ -310,7 +315,7 @@ export default function EstMeasurementsStep({
             toast.success("Measurement removed!");
         } catch (err) {
             console.error(err);
-            toast.error(err instanceof Error ? err.message : "Failed to remove measurement.");
+            showNotice(err instanceof Error ? err.message : "Failed to remove measurement.");
         } finally {
             setRemovingMeasurementId(null);
         }
@@ -418,7 +423,10 @@ export default function EstMeasurementsStep({
                                                                 <button
                                                                     type="button"
                                                                     className={glob.iconButton}
-                                                                    onClick={() => setMeasurementToRemove(item)}
+                                                                    onClick={() => {
+                                                                        clearNotice();
+                                                                        setMeasurementToRemove(item);
+                                                                    }}
                                                                     title="Remove Measurement"
                                                                     disabled={busy || showForm}
                                                                 >
@@ -515,8 +523,9 @@ export default function EstMeasurementsStep({
                 title={editingMeasId ? "Edit Measurement" : "Add Measurement"}
                 onClose={requestCloseForm}
                 busy={saving}
+                notice={notice}
             >
-                <form className={glob.form} onSubmit={handleSave}>
+                <form className={glob.form} onSubmit={handleSave} noValidate>
                     <div className={glob.fieldGroup}>
                         <label className={glob.label}>Area/Room</label>
                         <input
@@ -728,8 +737,12 @@ export default function EstMeasurementsStep({
             <AppModal
                 open={measurementToRemove !== null}
                 title="Remove Measurement"
-                onClose={() => setMeasurementToRemove(null)}
+                onClose={() => {
+                    clearNotice();
+                    setMeasurementToRemove(null);
+                }}
                 busy={removingMeasurementId !== null}
+                notice={notice}
             >
                 <p>
                     Are you sure you want to remove{" "}
@@ -741,7 +754,10 @@ export default function EstMeasurementsStep({
                     <button
                         type="button"
                         className={glob.buttonTwo}
-                        onClick={() => setMeasurementToRemove(null)}
+                        onClick={() => {
+                            clearNotice();
+                            setMeasurementToRemove(null);
+                        }}
                         disabled={removingMeasurementId !== null}
                     >
                         Cancel

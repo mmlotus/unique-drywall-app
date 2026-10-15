@@ -7,6 +7,7 @@ export type AppModalProps = {
   children: ReactNode;
   onClose: () => void;
   busy?: boolean;
+  notice?: string | null;
 };
 
 export type CreateEstimateBody = {
@@ -27,6 +28,7 @@ export type CreateEstimateBody = {
 
 export type UpdateEstimateBody = {
   currentStep?: number;
+  estimateNumber?: string | null;
   customerId?: string;
   builderFirmId?: string | null;
   estimateDate?: string;
@@ -77,6 +79,8 @@ export type EstimateSummary = {
 export type EstimateContactOption = {
   id: string;
   name: string;
+  phone: string | null;
+  email: string | null;
   is_archived: boolean;
 };
 
@@ -287,4 +291,16 @@ export type EstMaterialsStepProps = {
   editable: boolean;
   onDraftChange?: (hasDraft: boolean) => void;
   onBusyChange?: (isBusy: boolean) => void;
+};
+
+
+/* REVIEW */
+export type EstReviewStepProps = {
+  estimateId: string;
+  estimate: EstimateDetail;
+  customers: EstimateContactOption[];
+  builders: EstimateContactOption[];
+  editable: boolean;
+  onEstimateUpdated: (estimate: EstimateDetail) => void;
+  onBusyChange: (busy: boolean) => void;
 };

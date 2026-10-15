@@ -10,14 +10,8 @@ import LoadingSpinner from "../LoadingSpinner";
 import { Loader, Pencil, Trash2 } from "lucide-react";
 import AppModal from "../AppModal";
 import { calculateSuggestedMatQty } from "@/lib/helpers/estimateMaterialUtils";
-
-const money = (value: number) => value.toLocaleString("en-US", {
-    style: "currency", currency: "USD",
-});
-
-const numberText = (value: number) => value.toLocaleString("en-US", {
-    maximumFractionDigits: 3,
-});
+import { money, numberText } from "@/lib/constants/other";
+import { useModalNotice } from "@/hooks/useModalNotice";
 
 export default function EstMaterialsStep({
     estimateId,
@@ -39,6 +33,7 @@ export default function EstMaterialsStep({
     const [editing, setEditing] = useState<EstimateMaterial | null>(null);
     const [toRemove, setToRemove] = useState<EstimateMaterial | null>(null);
     const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+    const { notice, showNotice, clearNotice } = useModalNotice();
 
     const [materialId, setMaterialId] = useState("");
     const [variantId, setVariantId] = useState("");
@@ -119,6 +114,7 @@ export default function EstMaterialsStep({
     const estimateTotal = saved.reduce((sum, m) => sum + Number(m.line_total ?? 0), 0);
 
     function resetForm() {
+        clearNotice();
         setShowAdd(false);
         setEditing(null);
         setMaterialId("");
@@ -130,6 +126,7 @@ export default function EstMaterialsStep({
 
     function beginAdd(m: Material, variant?: Material) {
         if (!editable || busy || openForm || !selectedArea) return;
+        clearNotice();
         resetForm();
         setMaterialId(m.id);
         setVariantId(variant?.id ?? "");
@@ -138,6 +135,7 @@ export default function EstMaterialsStep({
 
     function beginEdit(item: EstimateMaterial) {
         if (!editable || busy || openForm) return;
+        clearNotice();
         setShowAdd(false);
         setEditing(item);
         setQuantityText(String(item.quantity));
@@ -165,18 +163,18 @@ export default function EstMaterialsStep({
         if (!editable || busy || !selectedArea || !materialId) return;
 
         if (variants.length > 0 && !variantId) {
-            toast.error("Please select a material variant.");
+            showNotice("Please select a material variant.");
             return;
         }
 
         if (suggested === null && !quantityText.trim()) {
-            toast.error("Enter a quantity for this material.");
+            showNotice("Enter a quantity for this material.");
             return;
         }
 
         const count = Number(quantityText);
         if ((useOverride || suggested === null) && (!quantityText.trim() || !Number.isFinite(count) || count < 0)) {
-            toast.error("Quantity must be zero or greater.");
+            showNotice("Quantity must be zero or greater.");
             return;
         }
 
@@ -205,7 +203,7 @@ export default function EstMaterialsStep({
             toast.success("Material added!");
         } catch (err) {
             console.error(err);
-            toast.error(err instanceof Error ? err.message : "Failed to add material.");
+            showNotice(err instanceof Error ? err.message : "Failed to add material.");
         } finally {
             setSaving(false);
         }
@@ -217,7 +215,7 @@ export default function EstMaterialsStep({
 
         const count = Number(quantityText);
         if (!quantityText.trim() || !Number.isFinite(count) || count < 0) {
-            toast.error("Quantity must be zero or greater.");
+            showNotice("Quantity must be zero or greater.");
             return;
         }
 
@@ -243,7 +241,7 @@ export default function EstMaterialsStep({
             toast.success("Material updated!");
         } catch (err) {
             console.error(err);
-            toast.error(err instanceof Error ? err.message : "Failed to update material.");
+            showNotice(err instanceof Error ? err.message : "Failed to update material.");
         } finally {
             setSaving(false);
         }
@@ -269,7 +267,7 @@ export default function EstMaterialsStep({
             toast.success("Material removed!");
         } catch (err) {
             console.error(err);
-            toast.error(err instanceof Error ? err.message : "Failed to remove material.");
+            showNotice(err instanceof Error ? err.message : "Failed to remove material.");
         } finally {
             setRemovingId(null);
         }
@@ -402,7 +400,10 @@ export default function EstMaterialsStep({
                                                         <button
                                                             type="button"
                                                             className={glob.iconButton}
-                                                            onClick={() => setToRemove(item)}
+                                                            onClick={() => {
+                                                                clearNotice();
+                                                                setToRemove(item);
+                                                            }}
                                                             title="Remove Material"
                                                             disabled={busy || openForm}
                                                         >
@@ -495,6 +496,7 @@ export default function EstMaterialsStep({
                 title={"Add Material"}
                 onClose={requestClose}
                 busy={saving}
+                notice={notice}
             >
                 <form className={glob.form} onSubmit={handleSave}>
                     <div className={glob.fieldGroup}>
@@ -603,8 +605,9 @@ export default function EstMaterialsStep({
                 title="Edit Material"
                 onClose={requestClose}
                 busy={saving}
+                notice={notice}
             >
-                <form className={glob.form} onSubmit={handleEdit}>
+                <form className={glob.form} onSubmit={handleEdit} noValidate>
                     <p>
                         <strong>{editing?.material_name}{editing?.variant_name
                             ? ` - ${editing.variant_name}` : ""}</strong>
@@ -695,8 +698,12 @@ export default function EstMaterialsStep({
             <AppModal
                 open={toRemove !== null}
                 title="Remove Material"
-                onClose={() => setToRemove(null)}
+                onClose={() => {
+                    clearNotice();
+                    setToRemove(null);
+                }}
                 busy={removingId !== null}
+                notice={notice}
             >
                 <p>
                     Are you sure you want to remove{" "}
@@ -708,7 +715,10 @@ export default function EstMaterialsStep({
                     <button
                         type="button"
                         className={glob.buttonTwo}
-                        onClick={() => setToRemove(null)}
+                        onClick={() => {
+                            clearNotice();
+                            setToRemove(null);
+                        }}
                         disabled={removingId !== null}
                     >
                         Cancel

@@ -41,6 +41,7 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
 
         const allowedFields = [
             "currentStep",
+            "estimateNumber",
             "customerId",
             "builderFirmId",
             "estimateDate",
@@ -153,10 +154,32 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
         const customContactPhone = cleanNullableString(body.customContactPhone);
         const customContactEmail = cleanNullableString(body.customContactEmail);
         const notes = cleanNullableString(body.notes);
+        const estimateNumber = cleanNullableString(body.estimateNumber);
+
+        if (has("estimateNumber") && estimateNumber) {
+            const duplicates = await sql`
+                SELECT id
+                FROM estimates
+                WHERE estimate_number = ${estimateNumber}
+                    AND id <> ${id}
+                LIMIT 1
+            `;
+
+            if (duplicates.length > 0) return jsonError("That estimate number is already in use.", 409);
+        }
 
         const updated = await sql`
             UPDATE estimates
             SET
+                estimate_number = CASE
+                    WHEN ${has("estimateNumber")}
+                    THEN COALESCE(
+                        ${estimateNumber},
+                        nextval('estimate_number_seq')::text
+                    )
+                    ELSE estimate_number
+                END,
+
                 current_step = CASE
                     WHEN ${has("currentStep")}
                     THEN ${body.currentStep ?? null}::integer
@@ -251,6 +274,10 @@ export async function PATCH(req: Request, context: EstimateRouteContext) {
 
         return jsonOk(updated[0]);
     } catch (err) {
+        if (err !== null && typeof err === "object" && "code" in err && err.code === "23505") {
+            return jsonError("That estimate number is already in use.", 409);
+        }
+
         return serverError("PATCH /api/estimates/[id]", err);
     }
 }

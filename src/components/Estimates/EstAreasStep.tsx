@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import LoadingSpinner from "../LoadingSpinner";
 import { Loader, Pencil, Trash2 } from "lucide-react";
 import AppModal from "../AppModal";
+import { useModalNotice } from "@/hooks/useModalNotice";
 
 type EstimateAreasStepProps = {
     estimateId: string;
@@ -31,6 +32,8 @@ export default function EstimateAreasStep({
 
     const [editingAreaId, setEditingAreaId] = useState<string | null>(null);
     const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+    const { notice, showNotice, clearNotice } = useModalNotice();
+
     const [editLabel, setEditLabel] = useState("");
     const [editNotes, setEditNotes] = useState("");
     const [updatingAreaId, setUpdatingAreaId] = useState<string | null>(null);
@@ -134,12 +137,14 @@ export default function EstimateAreasStep({
     }
 
     function startEditing(area: EstimateArea) {
+        clearNotice();
         setEditingAreaId(area.id);
         setEditLabel(area.display_label);
         setEditNotes(area.notes ?? "");
     }
 
     function cancelEditing() {
+        clearNotice();
         setEditingAreaId(null);
         setEditLabel("");
         setEditNotes("");
@@ -166,7 +171,7 @@ export default function EstimateAreasStep({
 
         if (!editable || !editingAreaId) return;
         if (!editLabel.trim()) {
-            toast.error("Area/Room label is required.");
+            showNotice("Area/Room label is required.");
             return;
         }
 
@@ -196,7 +201,7 @@ export default function EstimateAreasStep({
             toast.success("Area/Room updated!");
         } catch (err) {
             console.error(err);
-            toast.error(err instanceof Error ? err.message : "Failed to update area/room.");
+            showNotice(err instanceof Error ? err.message : "Failed to update area/room.");
         } finally {
             setUpdatingAreaId(null);
         }
@@ -205,6 +210,7 @@ export default function EstimateAreasStep({
     async function handleRemoveArea(area: EstimateArea) {
         if (!editable || removingAreaId || updatingAreaId || adding) return;
 
+        clearNotice();
         setAreaToRemove(area);
     }
 
@@ -232,13 +238,14 @@ export default function EstimateAreasStep({
             toast.success("Area/Room removed!");
         } catch (err) {
             console.error(err);
-            toast.error(err instanceof Error ? err.message : "Failed to remove area/room from this estimate.");
+            showNotice(err instanceof Error ? err.message : "Failed to remove area/room from this estimate.");
         } finally {
             setRemovingAreaId(null);
         }
     }
 
     function resetCustomRoom() {
+        clearNotice();
         setCustomRoomName("");
         setCustomRoomNotes("");
         setSaveCustomToLib(false);
@@ -481,8 +488,9 @@ export default function EstimateAreasStep({
                 title="Edit Area/Room"
                 onClose={requestCloseEditing}
                 busy={updatingAreaId !== null}
+                notice={notice}
             >
-                <form className={glob.form} onSubmit={handleUpdateArea}>
+                <form className={glob.form} onSubmit={handleUpdateArea} noValidate>
                     <div className={glob.fieldGroup}>
                         <label className={glob.label}>Display Label</label>
                         <input
@@ -564,8 +572,12 @@ export default function EstimateAreasStep({
             <AppModal
                 open={areaToRemove !== null}
                 title="Remove Area/Room"
-                onClose={() => setAreaToRemove(null)}
+                onClose={() => {
+                    clearNotice();
+                    setAreaToRemove(null);
+                }}
                 busy={removingAreaId !== null}
+                notice={notice}
             >
                 <p>
                     Are you sure you want to remove{" "}
@@ -577,7 +589,10 @@ export default function EstimateAreasStep({
                     <button
                         type="button"
                         className={glob.buttonTwo}
-                        onClick={() => setAreaToRemove(null)}
+                        onClick={() => {
+                            clearNotice();
+                            setAreaToRemove(null);
+                        }}
                         disabled={removingAreaId !== null}
                     >
                         Cancel

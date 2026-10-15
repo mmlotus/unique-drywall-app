@@ -18,6 +18,7 @@ import EstStepNav from "@/components/Estimates/EstStepNav";
 import { Loader } from "lucide-react";
 import EstMeasurementsStep from "@/components/Estimates/EstMeasurementsStep";
 import EstMaterialsStep from "@/components/Estimates/EstMaterialsStep";
+import EstReviewStep from "@/components/Estimates/EstReviewStep";
 
 export default function EstimateDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -36,6 +37,7 @@ export default function EstimateDetailPage() {
     const [saving, setSaving] = useState(false);
 
     const saveIntentRef = useRef<"next" | "exit">("next");
+    const pendingStepRef = useRef<number | null>(null);
 
     /* STEP 2 */
     const [areasHasDraft, setAreasHasDraft] = useState(false);
@@ -50,6 +52,7 @@ export default function EstimateDetailPage() {
     const [materialsBusy, setMaterialsBusy] = useState(false);
 
     /* STEP 5 */
+    const [reviewBusy, setReviewBusy] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -178,20 +181,46 @@ export default function EstimateDetailPage() {
                 router.push("/estimates");
             } else {
                 toast.success("Estimate updated!");
-                setCurrentStep(2);
+                setCurrentStep(pendingStepRef.current ?? 2);
             }
         } catch (err) {
             console.error(err);
             toast.error(err instanceof Error ? err.message : "Failed to save estimate.");
         } finally {
             saveIntentRef.current = "next";
+            pendingStepRef.current = null;
             setSaving(false);
         }
     }
 
+    function handleStepJump(targetStep: number) {
+        if (!estimate || saving || targetStep === currentStep) return;
+
+        if (targetStep < 1 || targetStep > estimate.current_step) return;
+
+        if (areasBusy || measurementsBusy || materialsBusy) {
+            toast.error("Please wait for the current operation to finish.");
+            return;
+        }
+
+        if (areasHasDraft || measurementsHasDraft || materialsHasDraft) {
+            toast.error("Finish or cancel your changes before switching steps.");
+            return;
+        }
+
+        if (currentStep === 1 && editable) {
+            pendingStepRef.current = targetStep;
+            saveIntentRef.current = "next";
+            infoFormRef.current?.requestSubmit();
+            return;
+        }
+
+        setCurrentStep(targetStep);
+    }
+
     function handlePreviousStep() {
         if (saving || currentStep <= 1 || !estimate || !editable
-            || areasBusy || measurementsBusy || materialsBusy
+            || areasBusy || measurementsBusy || materialsBusy || reviewBusy
         ) return;
 
         if (areasHasDraft || measurementsHasDraft || materialsHasDraft) {
@@ -245,7 +274,7 @@ export default function EstimateDetailPage() {
     }
 
     async function handleSaveAndExit() {
-        if (saving || areasBusy || measurementsBusy || materialsBusy) {
+        if (saving || areasBusy || measurementsBusy || materialsBusy || reviewBusy) {
             toast.error("Please wait for the current operation to finish.");
             return;
         }
@@ -352,24 +381,34 @@ export default function EstimateDetailPage() {
                             "Measure",
                             "Materials",
                             "Review",
-                        ].map((label, index) => (
-                            <div
-                                key={label}
-                                className={`${est.progressStep} ${currentStep === index + 1
-                                    ? est.progressActive
-                                    : currentStep > index + 1
-                                        ? est.progressCompleted
-                                        : ""
-                                    }`}
-                            >
-                                <span className={est.progressNumber}>
-                                    {index + 1}
-                                </span>
-                                <span className={est.progressLabel}>
-                                    {label}
-                                </span>
-                            </div>
-                        ))}
+                        ].map((label, index) => {
+                            const step = index + 1;
+                            const active = currentStep === step;
+                            const available = step <= estimate.current_step;
+
+                            return (
+                                <button
+                                    key={label}
+                                    type="button"
+                                    className={`${est.progressStep} ${active
+                                        ? est.progressActive
+                                        : step < currentStep
+                                            ? est.progressCompleted
+                                            : ""
+                                        }`}
+                                    onClick={() => handleStepJump(step)}
+                                    disabled={!available || saving}
+                                    title={available ? `Go to ${label}` : "Complete previous steps first"}
+                                >
+                                    <span className={est.progressNumber}>
+                                        {step}
+                                    </span>
+                                    <span className={est.progressLabel}>
+                                        {label}
+                                    </span>
+                                </button>
+                            );
+                        })}
                     </nav>
 
                     <div className={est.builderBody}>
@@ -610,6 +649,20 @@ export default function EstimateDetailPage() {
                                     editable={editable}
                                     onDraftChange={setMaterialsHasDraft}
                                     onBusyChange={setMaterialsBusy}
+                                />
+                            </div>
+                        )}
+
+                        {currentStep === 5 && (
+                            <div className={est.builderStep}>
+                                <EstReviewStep
+                                    estimateId={id}
+                                    estimate={estimate}
+                                    customers={customers}
+                                    builders={builders}
+                                    editable={editable}
+                                    onEstimateUpdated={setEstimate}
+                                    onBusyChange={setReviewBusy}
                                 />
                             </div>
                         )}
