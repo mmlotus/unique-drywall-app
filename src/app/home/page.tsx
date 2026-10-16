@@ -48,7 +48,7 @@ const libraries = [
 ];
 
 export default function HomePage() {
-    const { data: isPending } = authClient.useSession();
+    const { isPending } = authClient.useSession();
 
     if (isPending) return <LoadingSpinner />;
 
