@@ -3,6 +3,8 @@
 import { authClient } from "@/lib/auth-client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import styles from "@/styles/AppHeader.module.css";
+import Link from "next/link";
 
 
 export default function AuthGuard({
@@ -59,5 +61,49 @@ export default function AuthGuard({
 
     if (session && shouldRedirectLoggedInUser) return null;
 
-    return <>{children}</>;
+    const pageTitles: Record<string, string> = {
+        "/home": `Welcome back, ${session?.user?.name?.split(" ")[0] ?? "User"}!`,
+        "/estimates": "Estimates",
+        "/estimates/new": "New Estimate",
+        "/customers": "Customers",
+        "/builders": "Builders / Firms",
+        "/materials": "Materials",
+        "/categories": "Categories",
+        "/units": "Units",
+        "/areas": "Areas / Rooms",
+    };
+
+    const title =
+        pageTitles[pathname] ??
+        (pathname.startsWith("/estimates/")
+            ? "Estimate Builder"
+            : "Unique Drywall");
+
+    const description =
+        pathname === "/home"
+            ? "Your estimating workspace, all in one place."
+            : "Your estimating workspace.";
+
+    const showHeader = Boolean(session) && !pathname.startsWith("/login");
+
+    return (
+        <>
+            {showHeader && (
+                <div className={styles.headerContainer}>
+                    <Link
+                        href="/home"
+                        className={styles.homeLink}
+                        aria-label="Return to homepage"
+                    >
+                        <header className={styles.welcome}>
+                            <p className={styles.eyebrow}>UNIQUE DRYWALL</p>
+                            <h1 className={styles.title}>{title}</h1>
+                            <p className={styles.description}>{description}</p>
+                        </header>
+                    </Link>
+                </div>
+            )}
+            {children}
+        </>
+    );
 }

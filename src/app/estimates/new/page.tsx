@@ -111,8 +111,6 @@ export default function NewEstimatePage() {
 
     return (
         <main className={glob.container}>
-            <h1 className={glob.heading}>New Estimate</h1>
-
             <form className={glob.form} onSubmit={handleSubmit}>
                 <h2 className={libs.sectionHeading}>Estimate Information</h2>
 

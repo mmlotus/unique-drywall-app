@@ -337,7 +337,6 @@ export default function MaterialsPage() {
 
     return (
         <main className={glob.container}>
-            <h1 className={glob.heading}>Materials Library</h1>
 
             <LibraryPageLayout
                 editor={

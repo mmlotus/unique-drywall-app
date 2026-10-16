@@ -227,7 +227,6 @@ export default function BuilderFirmsPage() {
 
     return (
         <main className={glob.container}>
-            <h1 className={glob.heading}>Builder/Firm Library</h1>
 
             <LibraryPageLayout
                 editor={

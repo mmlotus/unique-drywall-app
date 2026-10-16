@@ -1,3 +1,4 @@
+/* LAYOUT */
 .review {
     width: 100%;
     min-width: 0;
@@ -7,15 +8,15 @@
     box-sizing: border-box;
 }
 
-/* DOCUMENT HEADER */
 
+/* DOCUMENT HEADER */
 .documentHeader {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
     padding-bottom: 16px;
-    border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid var(--border);
 }
 
 .documentHeader>div:first-child {
@@ -25,7 +26,6 @@
 
 .eyebrow {
     margin: 0 0 6px;
-    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.05em;
 }
@@ -39,7 +39,7 @@
 
 .muted {
     margin: 0;
-    color: #888;
+    color: var(--text-muted);
     font-size: 0.875rem;
     line-height: 1.5;
 }
@@ -62,14 +62,14 @@
     margin: 0;
 }
 
-/* ESTIMATE DETAILS */
 
+/* ESTIMATE DETAILS */
 .parties {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
     padding: 18px 0;
-    border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid var(--border);
 }
 
 .infoBlock {
@@ -101,8 +101,8 @@
     line-height: 1.5;
 }
 
-/* ESTIMATE NUMBER */
 
+/* ESTIMATE NUMBER */
 .estNumRow {
     display: flex;
     align-items: center;
@@ -129,8 +129,8 @@
     height: 42px;
 }
 
-/* SCOPE OF WORK */
 
+/* SCOPE OF WORK */
 .scopeSection {
     min-width: 0;
     padding-top: 22px;
@@ -149,15 +149,15 @@
     margin: 0;
 }
 
-/* ROOM CARDS */
 
+/* ROOM CARDS */
 .room {
     min-width: 0;
     margin-bottom: 20px;
     overflow: hidden;
     border: 1px solid var(--navy);
     border-radius: 8px;
-    background: #fff;
+    background: var(--surface);
 }
 
 .roomHeader {
@@ -167,7 +167,7 @@
     gap: 8px 16px;
     padding: 14px 16px;
     background: var(--navy);
-    color: var(--background);
+    color: var(--on-navy);
 }
 
 .roomHeader h4 {
@@ -191,24 +191,24 @@
 .roomNote {
     margin: 0;
     padding: 12px 16px;
-    border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid var(--border);
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
 
-/* ROOM SECTION HEADINGS */
 
+/* ROOM SECTION HEADINGS */
 .subheading {
     margin: 0;
     padding: 12px 16px;
-    background: #16233a25;
-    border-bottom: 1px solid #d9d9d9;
+    background: var(--surface-muted);
+    border-bottom: 1px solid var(--border);
     font-size: 0.94rem;
     font-weight: 700;
 }
 
-/* DESKTOP TABLE PRESENTATION */
 
+/* DESKTOP TABLE PRESENTATION */
 .tableScroll {
     width: 100%;
     min-width: 0;
@@ -228,7 +228,7 @@
     text-align: left;
     vertical-align: top;
     line-height: 1.5;
-    border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid var(--border);
 }
 
 .table th {
@@ -251,7 +251,7 @@
 }
 
 .table tfoot td {
-    background: #16233a15;
+    background: var(--surface-muted);
     font-weight: 700;
     border-bottom: 0;
 }
@@ -263,18 +263,18 @@
     overflow-wrap: anywhere;
 }
 
-/* EMPTY SECTIONS */
 
+/* EMPTY SECTIONS */
 .empty {
     margin: 0;
     padding: 16px;
-    color: #888;
+    color: var(--text-muted);
     font-size: 0.875rem;
     line-height: 1.5;
 }
 
-/* COMPACT ITEM PRESENTATION */
 
+/* COMPACT ITEM PRESENTATION */
 .mobileList {
     display: none;
 }
@@ -282,8 +282,8 @@
 .mobileItem {
     min-width: 0;
     padding: 12px;
-    background: #fff;
-    border: 1px solid #d9d9d9;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 6px;
 }
 
@@ -327,17 +327,15 @@
     flex-wrap: wrap;
     gap: 8px;
     padding: 12px;
-    background: #16233a15;
-    border: 1px solid #d9d9d9;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
     border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 700;
 }
 
 
-
 /* ESTIMATE SUMMARY */
-
 .summary {
     display: flex;
     flex-direction: column;
@@ -347,7 +345,7 @@
     overflow: hidden;
     border: 1px solid var(--navy);
     border-radius: 8px;
-    background: #fff;
+    background: var(--surface);
 }
 
 .summary .roomHeader {
@@ -376,7 +374,7 @@
 
 .grandTotal {
     padding: 16px;
-    border-top: 1px solid #d9d9d9;
+    border-top: 1px solid var(--border);
     text-align: left;
 }
 
@@ -391,8 +389,7 @@
 }
 
 
-/* RESPONSIVE LAYOUT ONLY */
-
+/* RESPONSIVE */
 @media (max-width: 760px) {
     .documentHeader {
         flex-direction: column;
@@ -410,7 +407,7 @@
         width: 100%;
         flex: none;
         padding-top: 10px;
-        border-top: 1px solid #d9d9d9;
+        border-top: 1px solid var(--border);
     }
 
     .documentMeta p {

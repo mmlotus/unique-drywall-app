@@ -357,8 +357,7 @@ export default function EstMeasurementsStep({
                                         <button
                                             key={area.id}
                                             type="button"
-                                            className={`${glob.button} ${est.selectionTile}`}
-                                            style={isSelected ? { backgroundColor: "var(--orange)" } : undefined}
+                                            className={`${glob.button} ${est.selectionTile} ${isSelected ? est.selectionTileSelected : ""}`}
                                             onClick={() => setSelectedRoomId(area.id)}
                                             aria-pressed={isSelected}
                                             disabled={busy || showForm}
@@ -370,7 +369,7 @@ export default function EstMeasurementsStep({
                             </div>
                         </section>
 
-                        <hr style={{ border: 0, borderTop: "1px solid #e5e7eb", margin: "24px 0" }} />
+                        <hr style={{ border: 0, borderTop: "1px solid var(--border)", margin: "10px 0" }} />
 
                         {selectedRoom && (
                             <section className={libs.section}>

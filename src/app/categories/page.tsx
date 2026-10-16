@@ -197,7 +197,6 @@ export default function CategoriesPage() {
 
     return (
         <main className={glob.container}>
-            <h1 className={glob.heading}>Category Library</h1>
 
             <LibraryPageLayout
                 editor={

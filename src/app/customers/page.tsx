@@ -243,8 +243,6 @@ export default function CustomersPage() {
 
     return (
         <main className={glob.container}>
-            <h1 className={glob.heading}>Customer Library</h1>
-
             <LibraryPageLayout
                 editor={
                     <form className={glob.form} onSubmit={handleSubmit}>

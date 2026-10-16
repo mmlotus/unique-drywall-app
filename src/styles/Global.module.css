@@ -1,25 +1,54 @@
+/* LAYOUT */
 .container {
   min-height: 100vh;
+  width: 100%;
   padding: 24px;
-  background: #f4f4f2;
+  background: transparent;
 }
 
+
+/* SHARED DASHBOARD */
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 1280px;
+    min-width: 0;
+    margin: 0 auto;
+}
+
+.dashboardSection {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: 20px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+@media (min-width: 1000px) {
+    .dashboard {
+        gap: 24px;
+    }
+
+    .dashboardSection {
+        padding: 28px 32px;
+    }
+}
+
+
+/* FORMS */
 .form {
   width: 100%;
   max-width: 420px;
-  margin: 60px auto 0;
+  margin: 0 auto;
   padding: 28px;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
-}
-
-.heading {
-  margin: 0 0 24px;
-  color: #1f2937;
-  font-size: 28px;
-  font-weight: 700;
-  text-align: center;
 }
 
 .fieldGroup {
@@ -29,7 +58,7 @@
 .label {
   display: block;
   margin-bottom: 6px;
-  color: #1f2937;
+  color: var(--text);
   font-size: 14px;
   font-weight: 600;
 }
@@ -38,10 +67,10 @@
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid #bfc5cc;
+  border: 1px solid var(--input-border);
   border-radius: 6px;
-  background: #ffffff;
-  color: #111827;
+  background: var(--input-bg);
+  color: var(--input-text);
   font-size: 16px;
 }
 
@@ -59,6 +88,16 @@
   opacity: 1;
 }
 
+
+/* TYPOGRAPHY & LINKS */
+.heading {
+  margin: 0 0 24px;
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+}
+
 .info {
   display: block;
   width: fit-content;
@@ -66,7 +105,7 @@
   padding: 10px;
   border: none;
   background: none;
-  color: #bfc5cc;
+  color: var(--text-muted);
   font-size: 0.75rem;
 }
 
@@ -77,7 +116,7 @@
   padding: 6px 10px;
   border: none;
   background: none;
-  color: var(--navy);
+  color: var(--accent-text);
   text-decoration: none;
   cursor: pointer;
   font-size: smaller;
@@ -102,10 +141,12 @@
 }
 
 .linkGroup .link+.link {
-  border-left: 1px solid #b8b8b8;
+  border-left: 1px solid var(--border);
 
 }
 
+
+/* BUTTONS */
 .button,
 .buttonTwo {
   width: 100%;
@@ -115,7 +156,7 @@
   border: none;
   border-radius: 6px;
   box-sizing: border-box;
-  color: var(--background);
+  color: var(--button-text);
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -151,10 +192,10 @@
   width: 2.25rem;
   height: 2.25rem;
   padding: 0;
-  border: 1px solid var(--navy);
+  border: 1px solid var(--accent-text);
   border-radius: 0.375rem;
   background: transparent;
-  color: var(--navy);
+  color: var(--accent-text);
   cursor: pointer;
 }
 
@@ -165,10 +206,10 @@
 
 .actionButton {
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--navy);
+  border: 1px solid var(--accent-text);
   border-radius: 0.375rem;
   background: transparent;
-  color: var(--navy);
+  color: var(--accent-text);
   cursor: pointer;
 }
 
@@ -184,6 +225,8 @@
   opacity: 0.6;
 }
 
+
+/* BUTTON LAYOUT */
 .iconActions {
   display: flex;
   align-items: center;
@@ -192,6 +235,8 @@
   flex-shrink: 0;
 }
 
+
+/* TOGGLE BUTTONS */
 .toggleButton {
   display: inline-flex;
   align-items: center;
@@ -204,7 +249,7 @@
   border-radius: 999px;
 
   background: transparent;
-  color: var(--navy);
+  color: var(--accent-text);
 
   font: inherit;
   font-size: 0.8rem;
@@ -237,7 +282,7 @@
 }
 
 
-/* Reusable Mobile-First Modal */
+/* MODALS */
 .modal {
   width: calc(100% - 24px);
   max-width: 480px;
@@ -245,9 +290,9 @@
   margin: auto;
   padding: 20px;
 
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--surface);
   color: var(--text);
 
   box-sizing: border-box;
@@ -256,12 +301,6 @@
 
 .modal::backdrop {
   background: rgba(0, 0, 0, 0.65);
-}
-
-.modalContent {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
 }
 
 .modalHeader {
@@ -315,6 +354,8 @@
   margin: 0;
 }
 
+
+/* MODAL NOTIFICATIONS */
 .modalToast {
     position: fixed;
     top: 16px;
@@ -357,6 +398,22 @@
     font-weight: 700;
 }
 
+
+/* DARK MODE - PRIMARY BUTTONS */
+@media (prefers-color-scheme: dark) {
+    .button {
+        background: var(--orange);
+        color: #faf6f6;
+    }
+
+    .button:hover:not(:disabled) {
+        background: var(--navy);
+        color: #ffffff;
+    }
+}
+
+
+/* RESPONSIVE */
 @media (min-width: 600px) {
   .modal {
     padding: 24px;
@@ -391,7 +448,6 @@
   }
 
   .form {
-    margin-top: 32px;
     padding: 22px;
   }
 }

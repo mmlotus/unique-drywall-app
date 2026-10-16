@@ -1,16 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --input-disabled-bg: #cccccc75;
+  color-scheme: light;
 
-  --text: #111111;
-  --text-muted: #555;
+  /* Application Backgrounds */
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --border: #d9dfe5;
 
+  /* Text */
+  --text: #1e293b;
+  --text-muted: #64748b;
+
+  /* Branding */
   --navy: #16233a;
   --orange: #f2a23a;
   --yellow: #f5c542;
+
+  /* Theme-Aware Accents */
+  --accent-text: #16233a;
+  --accent-soft: #eef1f5;
+  --on-navy: #ffffff;
+  --button-text: #ffffff;
+
+  /* Forms */
+  --input-disabled-bg: #e2e8f0;
+  --input-bg: #ffffff;
+  --input-text: #111827;
+  --input-border: #bfc5cc;
 }
 
 @theme inline {
@@ -22,16 +41,35 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --input-disabled-bg: #504f4f79;
+    color-scheme: dark;
 
-    --text: #f5f5f5;
-    --text-muted: #aaa;
+    /* Backgrounds & Surfaces */
+    --background: #17191d;
+    --foreground: #f3f4f6;
+    --surface: #292d34;
+    --surface-muted: #373c45;
+    --border: #41454e;
 
-    --navy: #395e9e;
+    /* Text */
+    --text: #f3f4f6;
+    --text-muted: #b0b6c0;
+
+    /* Branding */
+    --navy: #16233a;
     --orange: #f2a23a;
     --yellow: #f5c542;
+
+    /* Theme-Aware Accents */
+    --accent-text: #f3f4f6;
+    --accent-soft: #30343b;
+    --on-navy: #ffffff;
+    --button-text: #ffffff;
+
+    /* Forms */
+    --input-disabled-bg: #41454e;
+    --input-bg: #30343b;
+    --input-text: #f3f4f6;
+    --input-border: #606773;
   }
 }
 

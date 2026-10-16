@@ -197,7 +197,6 @@ export default function UnitsPage() {
 
     return (
         <main className={glob.container}>
-            <h1 className={glob.heading}>Unit Library</h1>
 
             <LibraryPageLayout
                 editor={

@@ -192,7 +192,6 @@ export default function AreasRoomsPage() {
 
     return (
         <main className={glob.container}>
-            <h1 className={glob.heading}>Area/Room Library</h1>
 
             <LibraryPageLayout
                 editor={

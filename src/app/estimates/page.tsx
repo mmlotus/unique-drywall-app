@@ -5,6 +5,7 @@ import LibrarySearch from "@/components/Libraries/LibrarySearch";
 import { useLibraryData } from "@/hooks/useLibraryData";
 import glob from "@/styles/Global.module.css";
 import libs from "@/styles/Libraries.module.css";
+import estStyles from "@/styles/Estimates.module.css";
 import { EstimateSummary } from "@/types";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -65,85 +66,115 @@ export default function EstimatesPage() {
 
     return (
         <main className={glob.container}>
-            <div className={libs.libraryHeader}>
-                <h1 className={libs.libraryTitle}>Estimates</h1>
+            <div className={glob.dashboard}>
+                <section className={`${libs.libraryBody} ${glob.dashboardSection}`}>
+                    <div
+                        className={libs.libraryActions}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: "12px",
+                        }}
+                    >
+                        <strong
+                            style={{
+                                fontSize: "18px",
+                                fontWeight: 700,
+                                color: "var(--accent-text)",
+                            }}
+                        >
+                            {totalRecords} Total Records
+                        </strong>
 
-                <div className={libs.libraryActions}>
-                    <Link href="/estimates/new" className={glob.button}>+ New Estimate</Link>
-                </div>
-            </div>
+                        <Link
+                            href="/estimates/new"
+                            className={glob.button}
+                            style={{
+                                maxWidth: "150px",
+                                marginLeft: "auto",
+                            }}
+                        >
+                            + New Estimate
+                        </Link>
+                    </div>
 
-            <div className={libs.libraryBody}>
-                <LibrarySearch
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                    placeholder="Search estimates..."
-                />
+                    <hr style={{ border: 0, borderTop: "1px solid var(--border)", margin: "10px 0" }} />
 
-                <LibraryPagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalRecords={totalRecords}
-                    pageSize={pageSize}
-                    onPageChange={setCurrentPage}
-                    onPageSizeChange={setPageSize}
-                />
+                    <LibrarySearch
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        placeholder="Search estimates..."
+                    />
 
-                {loading ? (
-                    <p>Loading estimates...</p>
-                ) : totalRecords === 0 ? (
-                    <p className={libs.emptyState}>
-                        {searchQuery
-                            ? "No estimates match your search."
-                            : "No estimates yet."
-                        }
-                    </p>
-                ) : (
-                    <>
-                        <div className={libs.recordList}>
-                            {paginatedRecords.map((est) => (
-                                <article
-                                    key={est.id}
-                                    className={libs.recordCard}
-                                >
-                                    <div className={libs.recordTitleRow}>
-                                        <div className={libs.recordTitleGroup}>
-                                            <h3 className={libs.recordTitle}>
+                    <LibraryPagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        totalRecords={totalRecords}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                    />
+
+                    {loading ? (
+                        <p>Loading estimates...</p>
+                    ) : totalRecords === 0 ? (
+                        <p className={libs.emptyState}>
+                            {searchQuery
+                                ? "No estimates match your search."
+                                : "No estimates yet."
+                            }
+                        </p>
+                    ) : (
+                        <>
+                            <div className={`${libs.recordList} ${estStyles.summaryList}`}>
+                                {paginatedRecords.map((est) => (
+                                    <article
+                                        key={est.id}
+                                        className={estStyles.summaryCard}
+                                    >
+                                        <div className={estStyles.summaryCardHeader}>
+                                            <h3 className={estStyles.summaryTitle}>
                                                 {est.job_name ||
                                                     est.estimate_number ||
-                                                    "Untitled Estimate"
-                                                }
+                                                    "Untitled Estimate"}
                                             </h3>
+
+                                            <span className={estStyles.summaryStatus}>
+                                                {est.status.charAt(0).toUpperCase() +
+                                                    est.status.slice(1)}
+                                            </span>
                                         </div>
-                                    </div>
 
-                                    <div className={libs.recordDetails}>
-                                        <span>
-                                            <strong>Estimate:</strong>{" "}
-                                            {est.estimate_number || "Not Assigned"}
-                                        </span>
+                                        <div className={estStyles.summaryDetails}>
+                                            <div>
+                                                <span className={estStyles.summaryLabel}>
+                                                    ESTIMATE NUMBER
+                                                </span>
+                                                <strong>
+                                                    {est.estimate_number || "Not Assigned"}
+                                                </strong>
+                                            </div>
 
-                                        <span>
-                                            <strong>Date:</strong>{" "}
-                                            {est.estimate_date.slice(0, 10)}
-                                        </span>
+                                            <div>
+                                                <span className={estStyles.summaryLabel}>
+                                                    ESTIMATE DATE
+                                                </span>
+                                                <strong>{est.estimate_date.slice(0, 10)}</strong>
+                                            </div>
 
-                                        <span>
-                                            <strong>Revision:</strong>{" "}
-                                            {est.current_revision}
-                                        </span>
+                                            <div>
+                                                <span className={estStyles.summaryLabel}>
+                                                    REVISION
+                                                </span>
+                                                <strong>{est.current_revision}</strong>
+                                            </div>
 
-                                        <span>
-                                            <strong>Status:</strong>{" "}
-                                            {est.status.charAt(0).toUpperCase() + est.status.slice(1)}
-                                        </span>
-
-                                        {(est.job_site_address ||
-                                            est.job_site_city ||
-                                            est.job_site_state ||
-                                            est.job_site_zip) && (
-                                                <div className={libs.recordAddress}>
-                                                    <strong>Job Site:</strong>{" "}
+                                            <div>
+                                                <span className={estStyles.summaryLabel}>
+                                                    JOB SITE
+                                                </span>
+                                                <span>
                                                     {[
                                                         est.job_site_address,
                                                         est.job_site_city,
@@ -151,28 +182,34 @@ export default function EstimatesPage() {
                                                         est.job_site_zip,
                                                     ]
                                                         .filter(Boolean)
-                                                        .join(", ")}
-                                                </div>
-                                            )}
-                                    </div>
+                                                        .join(", ") || "Not provided"}
+                                                </span>
+                                            </div>
+                                        </div>
 
-                                    <div className={glob.iconActions}>
-                                        <Link href={`/estimates/${est.id}`} className={glob.actionButton}>Open Estimate</Link>
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
+                                        <div className={estStyles.summaryFooter}>
+                                            <Link
+                                                href={`/estimates/${est.id}`}
+                                                className={glob.actionButton}
+                                            >
+                                                Open Estimate
+                                            </Link>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
 
-                        <LibraryPagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            totalRecords={totalRecords}
-                            pageSize={pageSize}
-                            onPageChange={setCurrentPage}
-                            onPageSizeChange={setPageSize}
-                        />
-                    </>
-                )}
+                            <LibraryPagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalRecords={totalRecords}
+                                pageSize={pageSize}
+                                onPageChange={setCurrentPage}
+                                onPageSizeChange={setPageSize}
+                            />
+                        </>
+                    )}
+                </section>
             </div>
         </main>
     );

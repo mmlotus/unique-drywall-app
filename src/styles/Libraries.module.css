@@ -1,3 +1,4 @@
+/* LIBRARY LAYOUT */
 .libraryPageLayout {
     display: flex;
     flex-direction: column;
@@ -31,6 +32,8 @@
     margin-bottom: 1rem;
 }
 
+
+/* RECORDS */
 .recordList {
     display: grid;
     grid-template-columns: 1fr;
@@ -41,8 +44,7 @@
     position: relative;
     min-width: 0;
     padding: 1rem;
-
-    border: 1px solid var(--navy);
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
 }
 
@@ -101,15 +103,17 @@
     opacity: 0.65;
 }
 
+
+/* LIBRARY SECTIONS */
 .librarySection {
     width: 100%;
     max-width: 1400px;
     margin: 0;
     overflow: hidden;
 
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--border);
     border-radius: 10px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .libraryHeader {
@@ -120,15 +124,13 @@
 
     padding: 0.9rem 1rem;
 
-    border-bottom: 1px solid #d9d9d9;
-    background: #f8f8f6;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-muted);
 }
 
 .libraryTitle {
     margin: 0;
-
-    color: var(--navy);
-
+    color: var(--accent-text);
     font-size: 1rem;
     font-weight: 700;
 }
@@ -148,6 +150,8 @@
     margin-top: 0;
 }
 
+
+/* SEARCH */
 .librarySearch {
     width: 100%;
     margin-bottom: 1rem;
@@ -158,11 +162,11 @@
     min-height: 40px;
     padding: 0.5rem 0.75rem;
 
-    border: 1px solid #bfc5cc;
+    border: 1px solid var(--input-border);
     border-radius: 6px;
 
-    background: #ffffff;
-    color: #111827;
+    background: var(--input-bg);
+    color: var(--input-text);
 
     font: inherit;
     font-size: 0.9rem;
@@ -174,24 +178,23 @@
     box-shadow: 0 0 0 2px rgba(140, 107, 36, 0.15);
 }
 
-/* Pagination */
 
+/* PAGINATION */
 .pagination {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.4rem;
-
     width: 100%;
     padding: 0.55rem 0;
-
-    border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
 }
 
 .paginationInfo {
     flex-shrink: 0;
 
-    color: #4b5563;
+    color: var(--text-muted);
     font-size: 0.72rem;
     white-space: nowrap;
 }
@@ -211,7 +214,7 @@
     gap: 0.25rem;
     flex-shrink: 0;
 
-    color: #4b5563;
+    color: var(--text-muted);
     font-size: 0.72rem;
     white-space: nowrap;
 }
@@ -221,11 +224,11 @@
     height: 28px;
     padding: 0 0.2rem;
 
-    border: 1px solid #cbd0d6;
+    border: 1px solid var(--border);
     border-radius: 5px;
 
-    background: #ffffff;
-    color: #111827;
+    background: var(--input-bg);
+    color: var(--input-text);
 
     font: inherit;
     font-size: 0.72rem;
@@ -242,17 +245,13 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     width: 28px;
     height: 28px;
     padding: 0;
-
-    border: 1px solid #cbd0d6;
+    border: 1px solid var(--border);
     border-radius: 5px;
-
-    background: #ffffff;
-    color: var(--navy);
-
+    background: var(--surface);
+    color: var(--accent-text);
     cursor: pointer;
 }
 
@@ -270,12 +269,12 @@
 .recordList+.pagination {
     margin-top: 0.75rem;
 
-    border-top: 1px solid #d9d9d9;
+    border-top: 1px solid var(--border);
     border-bottom: none;
 }
 
-/* Responsive library records */
 
+/* RESPONSIVE */
 @media (min-width: 800px) {
     .recordList {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -285,8 +284,6 @@
         padding-right: 4.5rem;
     }
 }
-
-/* Desktop library/editor split */
 
 @media (min-width: 1000px) {
     .libraryPageLayout {
