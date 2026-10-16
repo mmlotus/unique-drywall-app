@@ -16,6 +16,7 @@ export function materialToFormData(m: Material): MaterialFormData {
         thickness: m.thickness?.toString() ?? "",
 
         coveragePerUnit: m.coverage_per_unit?.toString() ?? "",
+        quantityPerUnit: m.quantity_per_unit?.toString() ?? "",
 
         cost: m.cost?.toString() ?? "",
         sellPrice: m.sell_price?.toString() ?? "",

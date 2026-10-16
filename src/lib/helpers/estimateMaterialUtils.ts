@@ -3,7 +3,7 @@ import { parseCustomFormula } from "./coverage";
 
 
 type MaterialCalculationInput = {
-    material: Pick<Material, "calculation_method" | "coverage_per_unit" | "custom_formula">;
+    material: Pick<Material, "calculation_method" | "coverage_per_unit" | "custom_formula" | "quantity_per_unit">;
     measurements: EstimateMeasurement[];
     sourceMaterialQuantity?: number | null;
 };
@@ -74,5 +74,10 @@ export function calculateSuggestedMatQty({
 
     if (!Number.isFinite(result) || result < 0) return null;
 
-    return Math.ceil(result);
+    const quantityPerUnit = material.quantity_per_unit === null ? null : Number(material.quantity_per_unit);
+    if (quantityPerUnit !== null && (!Number.isFinite(quantityPerUnit) || quantityPerUnit <= 0)) return null;
+
+    const purchaseQuantity = quantityPerUnit === null ? result : result / quantityPerUnit;
+
+    return Math.ceil(purchaseQuantity);
 }

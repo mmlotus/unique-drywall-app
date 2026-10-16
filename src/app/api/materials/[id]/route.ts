@@ -30,6 +30,7 @@ export async function PATCH(req: Request, context: RouteContext) {
                     length,
                     thickness,
                     coverage_per_unit,
+                    quantity_per_unit,
                     cost,
                     sell_price,
                     markup_percent,
@@ -55,6 +56,11 @@ export async function PATCH(req: Request, context: RouteContext) {
             return jsonError("Custom Formula is required when Calculation Method is Custom Formula.", 400);
         }
 
+        const quantityPerUnit = cleanNullableNumber(body.quantityPerUnit);
+        if (quantityPerUnit !== null && (!Number.isFinite(quantityPerUnit) || quantityPerUnit <= 0)) {
+            return jsonError("Quantity Per Unit must be greater than zero.", 400);
+        }
+
         if (cleanNullableString(body.parentMaterialId) === id) return jsonError("A material cannot be its own parent.", 400);
 
         const [mat] = await sql`
@@ -69,6 +75,7 @@ export async function PATCH(req: Request, context: RouteContext) {
                     length = ${cleanNullableNumber(body.length)},
                     thickness = ${cleanNullableNumber(body.thickness)},
                     coverage_per_unit = ${cleanNullableNumber(body.coveragePerUnit)},
+                    quantity_per_unit = ${cleanNullableNumber(body.quantityPerUnit)},
                     cost = ${cleanNullableNumber(body.cost)},
                     sell_price = ${cleanNullableNumber(body.sellPrice)},
                     markup_percent = ${cleanNullableNumber(body.markupPercent)},
@@ -88,6 +95,7 @@ export async function PATCH(req: Request, context: RouteContext) {
                     length,
                     thickness,
                     coverage_per_unit,
+                    quantity_per_unit,
                     cost,
                     sell_price,
                     markup_percent,

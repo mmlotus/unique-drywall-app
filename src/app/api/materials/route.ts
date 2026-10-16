@@ -16,6 +16,7 @@ export async function GET() {
                 length,
                 thickness,
                 coverage_per_unit,
+                quantity_per_unit,
                 cost,
                 sell_price,
                 markup_percent,
@@ -48,6 +49,11 @@ export async function POST(req: Request) {
             return jsonError("Custom Formula is required when Calculation Method is Custom Formula.", 400);
         }
 
+        const quantityPerUnit = cleanNullableNumber(body.quantityPerUnit);
+        if (quantityPerUnit !== null && (!Number.isFinite(quantityPerUnit) || quantityPerUnit <= 0)) {
+            return jsonError("Quantity Per Unit must be greater than zero.", 400);
+        }
+        
         const [mat] = await sql`
             INSERT INTO materials (
                 parent_material_id,
@@ -59,6 +65,7 @@ export async function POST(req: Request) {
                 length,
                 thickness,
                 coverage_per_unit,
+                quantity_per_unit,
                 cost,
                 sell_price,
                 markup_percent,
@@ -77,6 +84,7 @@ export async function POST(req: Request) {
                 ${cleanNullableNumber(body.length)},
                 ${cleanNullableNumber(body.thickness)},
                 ${cleanNullableNumber(body.coveragePerUnit)},
+                ${cleanNullableNumber(body.quantityPerUnit)},
                 ${cleanNullableNumber(body.cost)},
                 ${cleanNullableNumber(body.sellPrice)},
                 ${cleanNullableNumber(body.markupPercent)},
@@ -99,6 +107,7 @@ export async function POST(req: Request) {
                 length,
                 thickness,
                 coverage_per_unit,
+                quantity_per_unit,
                 cost,
                 sell_price,
                 markup_percent,

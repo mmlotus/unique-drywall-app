@@ -98,6 +98,7 @@ export async function POST(req: Request, context: EstimateRouteContext) {
                 m.calculation_method,
                 m.custom_formula,
                 m.coverage_per_unit,
+                m.quantity_per_unit,
                 m.cost,
                 m.sell_price,
                 m.markup_percent,
@@ -128,6 +129,7 @@ export async function POST(req: Request, context: EstimateRouteContext) {
                     m.calculation_method,
                     m.custom_formula,
                     m.coverage_per_unit,
+                    m.quantity_per_unit,
                     m.cost,
                     m.sell_price,
                     m.markup_percent,
@@ -162,6 +164,8 @@ export async function POST(req: Request, context: EstimateRouteContext) {
                 calculation_method: material.calculation_method,
                 coverage_per_unit: material.coverage_per_unit === null
                     ? null : Number(material.coverage_per_unit),
+                quantity_per_unit: material.quantity_per_unit === null
+                    ? null : Number(material.quantity_per_unit),
                 custom_formula: material.custom_formula,
             },
             measurements: measurements as EstimateMeasurement[],

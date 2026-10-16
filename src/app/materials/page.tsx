@@ -418,6 +418,26 @@ export default function MaterialsPage() {
                         </div>
 
                         <div className={glob.fieldGroup}>
+                            <label className={glob.label}>Pack Size</label>
+                            
+                            <input
+                                id="mat-quantity-per-unit"
+                                className={glob.input}
+                                type="number"
+                                min="0.000001"
+                                step="any"
+                                value={form.quantityPerUnit}
+                                onChange={(e) => updateField("quantityPerUnit", e.target.value)}
+                                placeholder="Optional"
+                            />
+
+                            <small>
+                                Number of individual items in one purchasing unit.
+                                Leave blank if no conversion is needed.
+                            </small>
+                        </div>
+
+                        <div className={glob.fieldGroup}>
                             <label className={glob.label}>Size / Description</label>
 
                             <input

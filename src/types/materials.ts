@@ -15,6 +15,7 @@ export type Material = {
     thickness: number | null;
 
     coverage_per_unit: number | null;
+    quantity_per_unit: number | null;
 
     cost: number | null;
     sell_price: number | null;
@@ -54,6 +55,7 @@ export type MaterialFormData = {
     thickness: string;
 
     coveragePerUnit: string;
+    quantityPerUnit: string;
 
     cost: string;
     sellPrice: string;
@@ -86,6 +88,7 @@ export const emptyMaterialFormData: MaterialFormData = {
     thickness: "",
 
     coveragePerUnit: "",
+    quantityPerUnit: "",
 
     cost: "",
     sellPrice: "",
